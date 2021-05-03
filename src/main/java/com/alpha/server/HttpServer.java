@@ -1,17 +1,10 @@
 package com.alpha.server;
 
-import com.alpha.handler.Handler;
 import com.alpha.handler.SocketHandler;
-import com.alpha.response.ContentType;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.*;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -57,8 +50,5 @@ public class HttpServer {
 
         return DEFAULT_PORT;
     }
-
-
-
 
 }

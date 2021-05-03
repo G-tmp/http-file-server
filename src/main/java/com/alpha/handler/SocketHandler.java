@@ -32,6 +32,7 @@ public class SocketHandler implements Runnable {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = socket.getOutputStream();
 
+
             while (!done) {
                 Request request = new Request(in);
                 Response response = new Response(out);
@@ -39,27 +40,31 @@ public class SocketHandler implements Runnable {
                 if (!request.parse()) {
                     response.setStatusCode(Status._500);
                     response.send();
+                    System.out.println("** parse exception");
                     return;
                 }
 
-                if ("get".equalsIgnoreCase(request.getMethod())) {
+
+
+                if ("GET".equals(request.getMethod())) {
                     MethodHandler.doGet(request, response);
-                } else if ("post".equalsIgnoreCase(request.getMethod())) {
+                } else if ("POST".equals(request.getMethod())) {
                     MethodHandler.doPost(request, response);
                 }
 
-                if ("close".equalsIgnoreCase(request.getHeader("connection"))) {
+                if ("close".equals(request.getHeader("Connection"))) {
                     done = true;
                     System.out.println("connect close");
                     break;
                 }
-
             }
-        }catch (SocketTimeoutException e) {
-            System.out.println("timeout");
+        } catch (SocketTimeoutException e) {
+            System.out.println("** timeout **");
+//            e.printStackTrace();
         } catch (SocketException e) {
-            e.printStackTrace();
-        }catch (IOException e) {
+            System.out.println("** Connection reset **");
+//            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             if (out != null) {

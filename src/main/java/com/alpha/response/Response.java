@@ -1,5 +1,7 @@
 package com.alpha.response;
 
+import com.alpha.handler.Cookie;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
@@ -9,11 +11,13 @@ public class Response {
     private String statusMessage;
     private Map<String, String> headers;
     private byte[] body;
+    private Map<String, String> cookies;
     private OutputStream out;
 
 
     public Response(OutputStream out) {
         headers = new HashMap<>();
+        cookies = new HashMap<>();
         this.out = out;
     }
 
@@ -45,6 +49,12 @@ public class Response {
         }
     }
 
+    // TODO
+    public void addCookie(Cookie cookie) {
+        cookies.put(cookie.getName(), cookie.toString());
+    }
+
+
     public void addHeader(String headerName, String headerValue) {
         this.headers.put(headerName, headerValue);
     }
@@ -64,10 +74,13 @@ public class Response {
     public void send() throws IOException {
         headers.put("Connection", "keep-alive");
 
-
         out.write(("HTTP/1.1 " + statusMessage + "\r\n").getBytes());
         for (String headerName : headers.keySet()) {
             out.write((headerName + ": " + headers.get(headerName) + "\r\n").getBytes());
+        }
+
+        for (String cookie : cookies.values()) {
+            out.write(("Set-Cookie" + ": " + cookie + "\r\n").getBytes());
         }
 
         out.write("\r\n".getBytes());
@@ -76,11 +89,6 @@ public class Response {
         }
 
         out.flush();
-    }
-
-
-    public OutputStream getOutputStream() {
-        return out;
     }
 
 }
