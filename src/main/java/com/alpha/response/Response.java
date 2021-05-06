@@ -49,7 +49,7 @@ public class Response {
         }
     }
 
-    // TODO
+
     public void addCookie(Cookie cookie) {
         cookies.put(cookie.getName(), cookie.toString());
     }
@@ -75,12 +75,14 @@ public class Response {
         headers.put("Connection", "keep-alive");
 
         out.write(("HTTP/1.1 " + statusMessage + "\r\n").getBytes());
-        for (String headerName : headers.keySet()) {
-            out.write((headerName + ": " + headers.get(headerName) + "\r\n").getBytes());
+        if (headers.size() > 0) {
+            for (String headerName : headers.keySet())
+                out.write((headerName + ": " + headers.get(headerName) + "\r\n").getBytes());
         }
 
-        for (String cookie : cookies.values()) {
-            out.write(("Set-Cookie" + ": " + cookie + "\r\n").getBytes());
+        if (cookies.size() > 0) {
+            for (String cookie : cookies.values())
+                out.write(("Set-Cookie" + ": " + cookie + "\r\n").getBytes());
         }
 
         out.write("\r\n".getBytes());
@@ -91,4 +93,20 @@ public class Response {
         out.flush();
     }
 
+
+    public void redirect(String path) throws IOException {
+        out.write(("HTTP/1.1 " + Status._302.toString() + "\r\n").getBytes());
+        out.write(("Connection" + ": " + "close" + "\r\n").getBytes());
+
+        if (cookies.size() > 0) {
+            for (String cookie : cookies.values()) {
+                out.write(("Set-Cookie" + ": " + cookie + "\r\n").getBytes());
+            }
+        }
+
+        out.write(("Location" + ": " + path + "\r\n").getBytes());
+
+        out.close();
+        out.flush();
+    }
 }

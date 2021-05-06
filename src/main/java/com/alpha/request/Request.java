@@ -118,6 +118,7 @@ public class Request {
 
 
     private void parseCookies(String cookieString) {
+        System.out.println("parse cookie");
         String[] cookiePairs = cookieString.split("; ");
         for (String s : cookiePairs) {
             int equal = s.indexOf("=");

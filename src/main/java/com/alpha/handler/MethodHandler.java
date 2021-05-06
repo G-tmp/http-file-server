@@ -46,12 +46,10 @@ public class MethodHandler {
 
         switch (type) {
             case redirect:
-                response.setStatusCode(Status._301);
-                response.addHeader("Location", request.getPath() + "/");
-                response.send();
+                response.redirect(request.getPath() + "/");
                 break;
             case permission_denied:
-                response.setStatusCode(Status._403);
+                response.setStatusCode(Status._401);
                 response.addBody("");
                 response.send();
                 break;
@@ -61,8 +59,32 @@ public class MethodHandler {
                 response.send();
                 break;
             case html:
-                // TODO - cookie and query parameter
-                String html = localMapping(request.getPath());
+                // check parameter
+                String showHidden = request.getParameter("showHidden");
+                if (showHidden == null) {
+                    // do nothing
+                } else if (showHidden.equals("0")) {
+                    Cookie cookie1 = new Cookie("showHidden", "false").setPath("/");
+                    response.addCookie(cookie1);
+
+                    response.redirect(request.getPath());
+                } else if (showHidden.equals("1")) {
+                    Cookie cookie1 = new Cookie("showHidden", "true").setPath("/");
+                    response.addCookie(cookie1);
+
+                    response.redirect(request.getPath());
+                }
+
+
+                // check cookie
+                String c = request.getCookie("showHidden");
+                String html = null;
+                if (c == null || c.equals("false")) {
+                    html = localMapping(request.getPath(), false);
+                } else if (c.equals("true")) {
+                    html = localMapping(request.getPath(), true);
+                }
+
                 response.setStatusCode(Status._200);
                 response.setContentType(ContentType.HTML);
                 response.addBody(html);
@@ -92,7 +114,7 @@ public class MethodHandler {
     }
 
 
-    private static MethodHandlerType checkType(String path) throws UnsupportedEncodingException {
+    private static MethodHandlerType checkType(String path)  {
         File file = new File(HOME, path);
         System.out.println(file);
 
@@ -127,19 +149,26 @@ public class MethodHandler {
         StringBuffer html = new StringBuffer();
         html.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">");
         html.append("<html>\n<head>\n");
-        html.append("<meta name=\"Content-Type\" content=\"text/html;charset=utf-8\">\n");
+        html.append("<meta name=\"Content-Type\" content=\"text/html; charset=utf-8\">\n");
         html.append("<title>").append(path).append("</title>\n</head>\n");
-        html.append("<body>\n").append("<h1>Index of ").append(path).append("</h1>\n");
+        html.append("<body>\n").append("<h1>Directory listing for ").append(path).append("</h1>\n");
+        // todo checkbox
+        if (showHidden) {
+            html.append("<a href=\"?showHidden=0\"><button>Show Hidden Files</button></a>&#10004;<p>"); // yes
+        } else {
+            html.append("<a href=\"?showHidden=1\"><button>Show Hidden Files</button></a>&#10007;<p>"); // no
+        }
         html.append("<form  method=\"POST\" enctype=\"multipart/form-data\">\n");
         html.append("<input type=\"text\" name=\"p1\" required=\"required\"> >>");
         html.append("<input type=\"file\" name=\"file\" required=\"required\"> >>");
         html.append("<button type=\"submit\">Upload</button>\n</form>\n");
         html.append("<hr>\n").append("<ul>\n");
         // TODO
-        if (file.equals(new File(HOME)))
+        if (file.equals(new File(HOME))) {
             html.append("<p>");
-        else
+        } else {
             html.append("<a href=\"").append(file.getParent().replace(HOME, "")).append("\">").append("Parent Directory").append("</a>").append("<p>");
+        }
 
         File[] files = null;
         if (showHidden) {
