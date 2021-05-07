@@ -96,7 +96,8 @@ public class Response {
 
     public void redirect(String path) throws IOException {
         out.write(("HTTP/1.1 " + Status._302.toString() + "\r\n").getBytes());
-        out.write(("Connection" + ": " + "close" + "\r\n").getBytes());
+        out.write(("Location" + ": " + path + "\r\n").getBytes());
+//        out.write(("Connection" + ": " + "close" + "\r\n").getBytes());
 
         if (cookies.size() > 0) {
             for (String cookie : cookies.values()) {
@@ -104,9 +105,8 @@ public class Response {
             }
         }
 
-        out.write(("Location" + ": " + path + "\r\n").getBytes());
+        out.write("\r\n".getBytes());
 
-        out.close();
         out.flush();
     }
 }

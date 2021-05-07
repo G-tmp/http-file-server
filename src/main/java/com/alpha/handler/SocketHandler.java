@@ -44,8 +44,8 @@ public class SocketHandler implements Runnable {
                     return;
                 }
 
-                System.out.println("params : " + request.getParameters());
-                System.out.println("cookie : " + request.getCookies());
+//                System.out.println("params : " + request.getParameters());
+//                System.out.println("cookie : " + request.getCookies());
 
                 if ("GET".equals(request.getMethod())) {
                     MethodHandler.doGet(request, response);

@@ -1,5 +1,6 @@
 package com.alpha.handler;
 
+import com.alpha.request.HttpInputStream;
 import com.alpha.request.Request;
 import com.alpha.response.ContentType;
 import com.alpha.response.Response;
@@ -114,7 +115,7 @@ public class MethodHandler {
     }
 
 
-    private static MethodHandlerType checkType(String path)  {
+    private static MethodHandlerType checkType(String path) {
         File file = new File(HOME, path);
         System.out.println(file);
 
@@ -162,13 +163,15 @@ public class MethodHandler {
         html.append("<input type=\"text\" name=\"p1\" required=\"required\"> >>");
         html.append("<input type=\"file\" name=\"file\" required=\"required\"> >>");
         html.append("<button type=\"submit\">Upload</button>\n</form>\n");
-        html.append("<hr>\n").append("<ul>\n");
-        // TODO
-        if (file.equals(new File(HOME))) {
-            html.append("<p>");
+        html.append("<hr>\n");
+
+        if ("/".equals(path)) {
+            html.append("/");
         } else {
-            html.append("<a href=\"").append(file.getParent().replace(HOME, "")).append("\">").append("Parent Directory").append("</a>").append("<p>");
+            String parentPath = file.getParent().replace(HOME, "") + "/";
+            html.append("<a href=\"").append(parentPath).append("\">").append("Parent Directory").append("</a>");
         }
+        html.append("<ul>\n");
 
         File[] files = null;
         if (showHidden) {
