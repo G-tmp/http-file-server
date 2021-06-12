@@ -1,19 +1,19 @@
 package com.alpha.request;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
+import java.io.*;
+import java.util.Arrays;
 import java.util.Map;
 
 public class HttpInputStream extends InputStream {
     private Reader source;
     private int bytesRemain;
     private boolean chunked;
+    private InputStream in;
 
 
-    public HttpInputStream(Reader source, Map<String, String> headers) throws IOException {
+    public HttpInputStream(InputStream in,Map<String, String> headers) throws IOException {
+        this.in = in;
         this.chunked = false;
-        this.source = source;
 
         String declaredContentLength = headers.get("Content-Length");
         if (declaredContentLength != null) {
@@ -27,7 +27,7 @@ public class HttpInputStream extends InputStream {
             bytesRemain = parseChunkSize();
         }
     }
-    
+
 
     private int parseChunkSize() throws IOException {
         int b = 0;
@@ -74,4 +74,29 @@ public class HttpInputStream extends InputStream {
         // not work here
         return source.read();
     }
+
+//    @Override
+//    public int read() throws IOException {
+//        if (bytesRemain == 0) {
+//            return -1;
+//        } else {
+//            bytesRemain -= 1;
+//            return source.read();
+//        }
+//    }
+
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+
+//        return source.read(b, off, len);
+        return super.read(b, off, len);
+    }
+
+
+    @Override
+    public int read(byte[] b) throws IOException {
+        return read(b, 0, b.length);
+    }
+
 }

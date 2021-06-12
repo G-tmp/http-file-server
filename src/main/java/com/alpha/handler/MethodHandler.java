@@ -31,14 +31,22 @@ public class MethodHandler {
 
     // TODO - parse http response and save file
     public static void doPost(Request request, Response response) throws IOException {
-//        request.parse();
-//
-//        InputStream bodyIS = request.getBody();
-//        int ch = 0;
-//        while ((ch = bodyIS.read()) != -1) {
-//            System.out.println((char) ch);
-//        }
+        int contentLength = Integer.parseInt(request.getHeader("Content-Length"));
+        HttpInputStream is = request.getBody();
+        int ch = 0;
+        int i = 0;
+        while ((ch = is.read()) != -1) {
+            i++;
+            System.out.print((char) ch);
+        }
 
+        System.out.println("content-length : " + contentLength);
+        System.out.println("i : " + i);
+
+        response.setStatusCode(Status._200);
+        response.setContentType(ContentType.HTML);
+        response.addBody("success");
+        response.send();
     }
 
 
@@ -65,14 +73,12 @@ public class MethodHandler {
                 if (showHidden == null) {
                     // do nothing
                 } else if (showHidden.equals("0")) {
-                    Cookie cookie1 = new Cookie("showHidden", "false").setPath("/");
+                    Cookie cookie1 = new Cookie("showHidden", "false").setPath("/").setMaxAge(60 * 60);
                     response.addCookie(cookie1);
-
                     response.redirect(request.getPath());
                 } else if (showHidden.equals("1")) {
-                    Cookie cookie1 = new Cookie("showHidden", "true").setPath("/");
+                    Cookie cookie1 = new Cookie("showHidden", "true").setPath("/").setMaxAge(60 * 60);
                     response.addCookie(cookie1);
-
                     response.redirect(request.getPath());
                 }
 
@@ -153,14 +159,13 @@ public class MethodHandler {
         html.append("<meta name=\"Content-Type\" content=\"text/html; charset=utf-8\">\n");
         html.append("<title>").append(path).append("</title>\n</head>\n");
         html.append("<body>\n").append("<h1>Directory listing for ").append(path).append("</h1>\n");
-        // todo checkbox
         if (showHidden) {
-            html.append("<a href=\"?showHidden=0\"><button>Show Hidden Files</button></a>&#10004;<p>"); // yes
+            html.append("<a href=\"?showHidden=0\"><button>Show Hidden Files</button></a>&#10004;<p>"); // show
         } else {
-            html.append("<a href=\"?showHidden=1\"><button>Show Hidden Files</button></a>&#10007;<p>"); // no
+            html.append("<a href=\"?showHidden=1\"><button>Show Hidden Files</button></a>&#10007;<p>"); // hidden
         }
         html.append("<form  method=\"POST\" enctype=\"multipart/form-data\">\n");
-        html.append("<input type=\"text\" name=\"p1\" required=\"required\"> >>");
+//        html.append("<input type=\"text\" name=\"p1\" required=\"required\"> >>");
         html.append("<input type=\"file\" name=\"file\" required=\"required\"> >>");
         html.append("<button type=\"submit\">Upload</button>\n</form>\n");
         html.append("<hr>\n");
@@ -212,4 +217,5 @@ public class MethodHandler {
 
         return String.valueOf(html);
     }
+
 }

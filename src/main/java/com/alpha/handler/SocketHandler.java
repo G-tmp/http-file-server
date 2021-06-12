@@ -11,6 +11,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 
+
 public class SocketHandler implements Runnable {
     private Socket socket;
 
@@ -22,16 +23,15 @@ public class SocketHandler implements Runnable {
 
     @Override
     public void run() {
-        BufferedReader in = null;
         OutputStream out = null;
+        InputStream in = null;
 
         try {
             socket.setSoTimeout(6 * 1000);
             boolean done = false;
 
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            in = socket.getInputStream();
             out = socket.getOutputStream();
-
 
             while (!done) {
                 Request request = new Request(in);
@@ -43,9 +43,6 @@ public class SocketHandler implements Runnable {
                     System.out.println("** parse exception");
                     return;
                 }
-
-//                System.out.println("params : " + request.getParameters());
-//                System.out.println("cookie : " + request.getCookies());
 
                 if ("GET".equals(request.getMethod())) {
                     MethodHandler.doGet(request, response);

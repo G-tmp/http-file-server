@@ -1,9 +1,7 @@
 package com.alpha.request;
 
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,10 +15,10 @@ public class Request {
     private Map<String, String> headers;    // store header name and value
     private Map<String, String> queryParameters;
     private Map<String, String> cookies;
-    private BufferedReader in;
+    private InputStream in;
 
 
-    public Request(BufferedReader in) {
+    public Request(InputStream in) {
         this.headers = new HashMap<>();
         this.queryParameters = new HashMap<>();
         this.cookies = new HashMap<>();
@@ -28,29 +26,40 @@ public class Request {
     }
 
 
-
     public boolean parse() throws IOException {
-        String initialLine = in.readLine();     // blocking
-        System.out.println(initialLine);
-        StringTokenizer tok = new StringTokenizer(initialLine);
-        String[] components = new String[3];
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        byte[] b = new byte[3];
+        int c = 0;
+        while ((c = in.read(b)) != -1) {
+            bytes.write(b, 0, c);
+            if (bytes.toString().contains("\r\n\r")) {
+                break;
+            }
+        }
 
+        String requestHeaders = new String(bytes.toByteArray(), "utf-8");
+        StringTokenizer reqTok = new StringTokenizer(requestHeaders, "\r\n");
+
+        // parse initial line
+        String initialLine = reqTok.nextToken();
+        System.out.println(initialLine);
+        StringTokenizer initTok = new StringTokenizer(initialLine);
+        String[] components = new String[3];
         for (int i = 0; i < components.length; i++) {
-            if (tok.hasMoreTokens()) {
-                components[i] = tok.nextToken();
+            if (initTok.hasMoreTokens()) {
+                components[i] = initTok.nextToken();
             } else {
                 return false;
             }
         }
-
         method = components[0];
         path = fullUrl = URLDecoder.decode(components[1], "utf-8");
         version = components[2];
 
-
-        // parse a bound of request headers
-        while (true) {
-            String headerLine = in.readLine();
+        // parse request headers
+        while (reqTok.hasMoreTokens()) {
+            String headerLine = reqTok.nextToken();
+//            System.out.println(headerLine);
             if (headerLine.length() == 0) {
                 break;
             }
@@ -68,20 +77,10 @@ public class Request {
                 parseCookies(headerValue);
                 continue;
             }
+
             headers.put(headerName, headerValue);
         }
 
-        if ("GET".equals(method)) {
-            parseGet();
-        } else if ("POST".equals(method)) {
-            parsePost(Integer.parseInt(headers.get("Content-Length")));
-        }
-
-        return true;
-    }
-
-
-    private void parseGet() {
         // parse request query parameters
         if (!fullUrl.contains("?")) {
             path = fullUrl;
@@ -89,7 +88,14 @@ public class Request {
             path = fullUrl.substring(0, fullUrl.indexOf("?"));
             parseQueryParameters(fullUrl.substring(fullUrl.indexOf("?") + 1));
         }
+
+//        if ("POST".equals(method)) {
+//            parsePost(Integer.parseInt(headers.get("Content-Length")));
+//        }
+
+        return true;
     }
+
 
     private void parsePost(int length) throws IOException {
 //        System.out.println("** parsePost");
@@ -118,7 +124,6 @@ public class Request {
 
 
     private void parseCookies(String cookieString) {
-        System.out.println("parse cookie");
         String[] cookiePairs = cookieString.split("; ");
         for (String s : cookiePairs) {
             int equal = s.indexOf("=");
@@ -127,7 +132,7 @@ public class Request {
     }
 
 
-    public InputStream getBody() throws IOException {
+    public HttpInputStream getBody() throws IOException {
         return new HttpInputStream(in, headers);
     }
 

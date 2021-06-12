@@ -30,6 +30,7 @@ public class HttpServer {
             while ((clientSocket = serverSocket.accept()) != null) {
                 System.out.println("Received connection from " + clientSocket.getRemoteSocketAddress().toString());
                 SocketHandler handler = new SocketHandler(clientSocket);
+
                 pool.submit(handler);
             }
         } catch (IOException e) {
