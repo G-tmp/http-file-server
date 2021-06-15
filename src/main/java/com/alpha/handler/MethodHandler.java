@@ -1,6 +1,5 @@
 package com.alpha.handler;
 
-import com.alpha.request.HttpInputStream;
 import com.alpha.request.Request;
 import com.alpha.response.ContentType;
 import com.alpha.response.Response;
@@ -29,19 +28,11 @@ public class MethodHandler {
     }
 
 
-    // TODO - parse http response and save file
+    // parse http response and save file
     public static void doPost(Request request, Response response) throws IOException {
-        int contentLength = Integer.parseInt(request.getHeader("Content-Length"));
-        HttpInputStream is = request.getBody();
-        int ch = 0;
-        int i = 0;
-        while ((ch = is.read()) != -1) {
-            i++;
-            System.out.print((char) ch);
-        }
+        SingleFile singleFile = request.parsePost();
 
-        System.out.println("content-length : " + contentLength);
-        System.out.println("i : " + i);
+
 
         response.setStatusCode(Status._200);
         response.setContentType(ContentType.HTML);

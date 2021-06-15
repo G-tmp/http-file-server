@@ -1,6 +1,8 @@
 package com.alpha.request;
 
 
+import com.alpha.handler.SingleFile;
+
 import java.io.*;
 import java.net.URLDecoder;
 import java.util.HashMap;
@@ -22,23 +24,30 @@ public class Request {
         this.headers = new HashMap<>();
         this.queryParameters = new HashMap<>();
         this.cookies = new HashMap<>();
-        this.in = in;
+        this.in = new BufferedInputStream(in);
     }
 
 
     public boolean parse() throws IOException {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        byte[] b = new byte[3];
+        byte[] b = new byte[2];
         int c = 0;
         while ((c = in.read(b)) != -1) {
             bytes.write(b, 0, c);
             if (bytes.toString().contains("\r\n\r")) {
+                int n = b[c - 1];
+                while (n != 10) {   // 10 - LF
+                    n = in.read();
+                }
                 break;
             }
         }
 
+
         String requestHeaders = new String(bytes.toByteArray(), "utf-8");
+        bytes.close();
         StringTokenizer reqTok = new StringTokenizer(requestHeaders, "\r\n");
+//        System.out.println(requestHeaders);
 
         // parse initial line
         String initialLine = reqTok.nextToken();
@@ -55,6 +64,7 @@ public class Request {
         method = components[0];
         path = fullUrl = URLDecoder.decode(components[1], "utf-8");
         version = components[2];
+
 
         // parse request headers
         while (reqTok.hasMoreTokens()) {
@@ -89,24 +99,7 @@ public class Request {
             parseQueryParameters(fullUrl.substring(fullUrl.indexOf("?") + 1));
         }
 
-//        if ("POST".equals(method)) {
-//            parsePost(Integer.parseInt(headers.get("Content-Length")));
-//        }
-
         return true;
-    }
-
-
-    private void parsePost(int length) throws IOException {
-//        System.out.println("** parsePost");
-//
-//        char[] buf = new char[2048];
-//        in.read(buf,0,1);
-//
-//        String line = in.readLine();
-//
-////        while (line.length() > 0)
-//        System.out.println("body = " + line);
     }
 
 
@@ -132,8 +125,8 @@ public class Request {
     }
 
 
-    public HttpInputStream getBody() throws IOException {
-        return new HttpInputStream(in, headers);
+    public SingleFile parsePost() throws IOException {
+        return new SingleFile(in,headers);
     }
 
 

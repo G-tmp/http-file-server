@@ -52,7 +52,7 @@ public class SocketHandler implements Runnable {
 
                 if ("close".equals(request.getHeader("Connection"))) {
                     done = true;
-                    System.out.println("connect close");
+                    System.out.println("** connect close **");
                     break;
                 }
             }
