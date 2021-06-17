@@ -1,9 +1,7 @@
 package com.alpha.handler;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.util.Arrays;
 import java.util.Map;
 
 public class SingleFile {
@@ -36,7 +34,7 @@ public class SingleFile {
     private void parse() throws IOException {
         int bytesRecvd = 0;
         int c = 0;
-        byte[] buf = new byte[2048];
+        byte[] buf = new byte[4096];
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         while (bytesRecvd < contentLength) {
             c = in.read(buf);
@@ -45,13 +43,37 @@ public class SingleFile {
         }
 
         this.bytes = baos.toByteArray();
-        System.out.println(new String(bytes,"utf-8"));
+        String s = new String(bytes, "utf-8");
+        String[] split = s.split("\r\n\r\n", 2);
+
+//        System.out.println(split[0]);
+//        System.out.println("########################");
+//        System.out.println(split[1]);
+
+        String tmp = split[0].substring(split[0].indexOf("name=") + 6);
+        this.name = tmp.substring(0, tmp.indexOf("\"; "));
+
+        tmp = split[0].substring(split[0].indexOf("filename=") + 10);
+        this.filename = tmp.substring(0, tmp.indexOf("\""));
+
+        tmp = split[0].substring(split[0].indexOf("Content-Type: ") + 14);
+        this.type = tmp.substring(0);
+
+        this.data = Arrays.copyOfRange(bytes, split[0].getBytes().length + 4, contentLength - boundary.length() - 12);
+
+//        System.out.println(name+".");
+//        System.out.println(filename+".");
+//        System.out.println(type+".");
+
         baos.close();
     }
 
 
-    public File save(String parent, String child) {
-        return new File(parent, child);
+    public void save(String parent, String child) throws IOException {
+        File file = new File(parent, child);
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            fos.write(data);
+        }
     }
 
     public String getFilename() {

@@ -30,12 +30,12 @@ public class Request {
 
     public boolean parse() throws IOException {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        byte[] b = new byte[2];
+        byte[] buf = new byte[2];
         int c = 0;
-        while ((c = in.read(b)) != -1) {
-            bytes.write(b, 0, c);
+        while ((c = in.read(buf)) != -1) {
+            bytes.write(buf, 0, c);
             if (bytes.toString().contains("\r\n\r")) {
-                int n = b[c - 1];
+                int n = buf[c - 1];
                 while (n != 10) {   // 10 - LF
                     n = in.read();
                 }
@@ -126,7 +126,7 @@ public class Request {
 
 
     public SingleFile parsePost() throws IOException {
-        return new SingleFile(in,headers);
+        return new SingleFile(in, headers);
     }
 
 

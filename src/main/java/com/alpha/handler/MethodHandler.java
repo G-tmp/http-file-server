@@ -28,11 +28,13 @@ public class MethodHandler {
     }
 
 
-    // parse http response and save file
+
     public static void doPost(Request request, Response response) throws IOException {
         SingleFile singleFile = request.parsePost();
 
+        singleFile.save(new File(HOME,request.getPath()).getPath(),singleFile.getFilename());
 
+        System.out.println(singleFile);
 
         response.setStatusCode(Status._200);
         response.setContentType(ContentType.HTML);
