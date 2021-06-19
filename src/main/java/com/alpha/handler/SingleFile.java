@@ -69,11 +69,12 @@ public class SingleFile {
     }
 
 
-    public void save(String parent, String child) throws IOException {
+    public File save(String parent, String child) throws IOException {
         File file = new File(parent, child);
         try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write(data);
         }
+        return file;
     }
 
     public String getFilename() {

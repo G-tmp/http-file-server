@@ -28,13 +28,11 @@ public class MethodHandler {
     }
 
 
-
     public static void doPost(Request request, Response response) throws IOException {
         SingleFile singleFile = request.parsePost();
 
-        singleFile.save(new File(HOME,request.getPath()).getPath(),singleFile.getFilename());
-
-        System.out.println(singleFile);
+        File path = singleFile.save(new File(HOME, request.getPath()).getPath(), singleFile.getFilename());
+        System.out.println(path);
 
         response.setStatusCode(Status._200);
         response.setContentType(ContentType.HTML);
@@ -92,23 +90,25 @@ public class MethodHandler {
                 break;
             case file:
                 File file = new File(HOME, request.getPath());
-                int length = (int) file.length();
-                byte[] array = new byte[length];
-                InputStream in = new FileInputStream(file);
-                int offset = 0;
-                while (offset < length) {
-                    int count = in.read(array, offset, (length - offset));
-                    offset += count;
+                try (FileInputStream fis = new FileInputStream(file);
+                     ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+
+                    int read = 0;
+                    byte[] buf = new byte[4096];
+                    while ((read = fis.read(buf)) != -1) {
+                        baos.write(buf, 0, read);
+                    }
+
+                    String isDownload = request.getParameter("download");
+                    if (isDownload != null && "1".equals(isDownload)) {
+                        response.addHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+                    }
+                    response.setStatusCode(Status._200);
+                    response.guessContentType(request.getPath());
+                    response.addBody(baos.toByteArray());
+                    response.send();
+                    break;
                 }
-                String isDownload = request.getParameter("download");
-                if (isDownload != null && "1".equals(isDownload)) {
-                    response.addHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-                }
-                response.setStatusCode(Status._200);
-                response.guessContentType(request.getPath());
-                response.addBody(array);
-                response.send();
-                break;
         }
 
     }
