@@ -1,10 +1,13 @@
 package com.alpha.server;
 
+import com.alpha.handler.Handler;
 import com.alpha.handler.SocketHandler;
 
 
 import java.io.*;
 import java.net.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -13,6 +16,7 @@ public class HttpServer {
     private int port;
     private ExecutorService pool = Executors.newFixedThreadPool(8);
     private static int DEFAULT_PORT = 8888;
+    private Map<String, Map<String, Handler>> handlers = new HashMap<String, Map<String, Handler>>();
 
 
     public HttpServer(int port) {
@@ -50,6 +54,16 @@ public class HttpServer {
         }
 
         return DEFAULT_PORT;
+    }
+
+
+    public void addHandler(String method, String path, Handler handler)  {
+        Map<String, Handler> methodHandlers = handlers.get(method);
+        if (methodHandlers == null)  {
+            methodHandlers = new HashMap<String, Handler>();
+            handlers.put(method, methodHandlers);
+        }
+        methodHandlers.put(path, handler);
     }
 
 }

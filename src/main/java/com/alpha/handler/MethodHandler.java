@@ -1,5 +1,6 @@
 package com.alpha.handler;
 
+import com.alpha.request.Cookie;
 import com.alpha.request.Request;
 import com.alpha.response.ContentType;
 import com.alpha.response.Response;
@@ -11,15 +12,6 @@ import java.util.Arrays;
 
 
 public class MethodHandler {
-
-    private enum MethodHandlerType {
-        file,
-        html,
-        permission_denied,
-        not_found,
-        redirect;
-    }
-
 
     private final static String HOME = System.getProperty("user.home");
 
@@ -34,117 +26,145 @@ public class MethodHandler {
         File path = singleFile.save(new File(HOME, request.getPath()).getPath(), singleFile.getFilename());
         System.out.println(path);
 
+        String body = "success";
         response.setStatusCode(Status._200);
         response.setContentType(ContentType.HTML);
-        response.addBody("success");
+        response.addBody(body);
+        response.setContentLength(body.getBytes().length);
         response.send();
     }
 
 
     public static void doGet(Request request, Response response) throws IOException {
-        MethodHandlerType type = checkType(request.getPath());
+        Status statusCode = statusCode(request.getPath());
 
-        switch (type) {
-            case redirect:
-                response.redirect(request.getPath() + "/");
-                break;
-            case permission_denied:
-                response.setStatusCode(Status._401);
-                response.addBody("");
-                response.send();
-                break;
-            case not_found:
+        switch (statusCode) {
+            case _404:
                 response.setStatusCode(Status._404);
                 response.addBody("");
+                response.setContentLength(0);
                 response.send();
                 break;
-            case html:
-                // check parameter
-                String showHidden = request.getParameter("showHidden");
-                if (showHidden == null) {
-                    // do nothing
-                } else if (showHidden.equals("0")) {
-                    Cookie cookie1 = new Cookie("showHidden", "false").setPath("/").setMaxAge(60 * 60);
-                    response.addCookie(cookie1);
-                    response.redirect(request.getPath());
-                } else if (showHidden.equals("1")) {
-                    Cookie cookie1 = new Cookie("showHidden", "true").setPath("/").setMaxAge(60 * 60);
-                    response.addCookie(cookie1);
-                    response.redirect(request.getPath());
-                }
-
-
-                // check cookie
-                String c = request.getCookie("showHidden");
-                String html = null;
-                if (c == null || c.equals("false")) {
-                    html = localMapping(request.getPath(), false);
-                } else if (c.equals("true")) {
-                    html = localMapping(request.getPath(), true);
-                }
-
-                response.setStatusCode(Status._200);
-                response.setContentType(ContentType.HTML);
-                response.addBody(html);
+            case _401:
+                response.setStatusCode(Status._401);
+                response.addBody("");
+                response.setContentLength(0);
                 response.send();
                 break;
-            case file:
+            case _302:
+                response.redirect(request.getPath() + "/");
+                break;
+            case _200:
                 File file = new File(HOME, request.getPath());
-                try (FileInputStream fis = new FileInputStream(file);
-                     ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-
-                    int read = 0;
-                    byte[] buf = new byte[4096];
-                    while ((read = fis.read(buf)) != -1) {
-                        baos.write(buf, 0, read);
+                // html
+                if (file.isDirectory()) {
+                    // check parameter
+                    String showHidden = request.getParameter("showHidden");
+                    if (showHidden == null) {
+                        // do nothing
+                    } else if (showHidden.equals("0")) {
+                        Cookie cookie1 = new Cookie("showHidden", "false").setPath("/").setMaxAge(60 * 60);
+                        response.addCookie(cookie1);
+                        response.redirect(request.getPath());
+                    } else if (showHidden.equals("1")) {
+                        Cookie cookie1 = new Cookie("showHidden", "true").setPath("/").setMaxAge(60 * 60);
+                        response.addCookie(cookie1);
+                        response.redirect(request.getPath());
                     }
 
-                    String isDownload = request.getParameter("download");
-                    if (isDownload != null && "1".equals(isDownload)) {
-                        response.addHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+
+                    // check cookie
+                    String c = request.getCookie("showHidden");
+                    String html = null;
+                    if (c == null || c.equals("false")) {
+                        html = mappingLocal(request.getPath(), false);
+                    } else if (c.equals("true")) {
+                        html = mappingLocal(request.getPath(), true);
                     }
+
                     response.setStatusCode(Status._200);
-                    response.guessContentType(request.getPath());
-                    response.addBody(baos.toByteArray());
+                    response.setContentType(ContentType.HTML);
+                    response.addBody(html);
+                    response.setContentLength(html.getBytes().length);
                     response.send();
                     break;
-                }
-        }
+                } else {
+                    File localFile = new File(HOME, request.getPath());
+                    try (FileInputStream fis = new FileInputStream(localFile);
+                         ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 
+                        int read = 0;
+                        byte[] buf = new byte[1024 * 1000];
+                        while ((read = fis.read(buf)) != -1) {
+                            baos.write(buf, 0, read);
+                        }
+                        int length = baos.toByteArray().length;
+
+                        String isDownload = request.getParameter("download");
+                        if (isDownload != null && "1".equals(isDownload)) {
+                            response.addHeader("Content-Disposition", "attachment; filename=\"" + localFile.getName() + "\"");
+                        }
+
+                        // 206
+                        String range = request.getHeader("Range");
+                        if (range != null && range.contains("bytes")) {
+                            int start = Integer.parseInt(range.substring(range.indexOf("=") + 1, range.indexOf("-")));
+                            response.setStatusCode(Status._206);
+                            // TODO - return partial bytes not all
+                            response.addHeader("Content-Range", String.format("bytes 0-%d/%d", length - 1, length));
+                            response.guessContentType(request.getPath());
+                            response.addBody(baos.toByteArray());
+                            response.setContentLength(length);
+                            response.send();
+                            return;
+                        }
+
+                        response.setStatusCode(Status._200);
+                        response.addHeader("Accept-Ranges", "bytes");
+                        response.guessContentType(request.getPath());
+                        response.addBody(baos.toByteArray());
+                        response.setContentLength(length);
+                        response.send();
+                        break;
+                    }
+                }
+            default:
+                throw new IOException("unhandled status code");
+        }
     }
 
 
-    private static MethodHandlerType checkType(String path) {
+    private static Status statusCode(String path) {
         File file = new File(HOME, path);
         System.out.println(file);
 
         if (!file.exists()) {
-            return MethodHandlerType.not_found;
+            return Status._404;
         }
 
         if (!file.canRead()) {
-            return MethodHandlerType.permission_denied;
+            return Status._401;
         }
 
         if (file.isDirectory()) {
             if (!path.endsWith("/")) {
-                return MethodHandlerType.redirect;
-            }
+                return Status._302;
+            } else
 
-            return MethodHandlerType.html;
+                return Status._200;
         } else {
             // is file
-            return MethodHandlerType.file;
+            return Status._200;
         }
     }
 
 
-    private static String localMapping(String path) throws UnsupportedEncodingException {
-        return localMapping(path, false);
+    private static String mappingLocal(String path) throws UnsupportedEncodingException {
+        return mappingLocal(path, false);
     }
 
 
-    private static String localMapping(String path, boolean showHidden) throws UnsupportedEncodingException {
+    private static String mappingLocal(String path, boolean showHidden) throws UnsupportedEncodingException {
         File file = new File(HOME, path);
         StringBuffer html = new StringBuffer();
         html.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">");
@@ -183,7 +203,7 @@ public class MethodHandler {
             });
         }
 
-        // TODO - sort ignore case sensitivity
+        // TODO - sort by date, size and ignore case sensitivity
         Arrays.sort(files);
         for (File subfile : files) {
             String displayName = subfile.getName();

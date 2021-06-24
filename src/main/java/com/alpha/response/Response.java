@@ -1,6 +1,6 @@
 package com.alpha.response;
 
-import com.alpha.handler.Cookie;
+import com.alpha.request.Cookie;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -31,7 +31,12 @@ public class Response {
         this.headers.put("Content-Type", contentType.toString());
     }
 
+    public void setContentLength(int length){
+        this.headers.put("Content-Length", String.valueOf(length));
+    }
 
+
+    // TODO - determine file type by file signature
     public void guessContentType(String url) {
         if (!url.contains(".")) {
             this.headers.put("Content-Type", ContentType.TXT.toString());
@@ -66,7 +71,6 @@ public class Response {
 
 
     public void addBody(byte[] body) {
-        this.headers.put("Content-Length", String.valueOf(body.length));
         this.body = body;
     }
 

@@ -15,7 +15,6 @@ import java.net.SocketTimeoutException;
 public class SocketHandler implements Runnable {
     private Socket socket;
 
-
     public SocketHandler(Socket socket) {
         this.socket = socket;
     }

@@ -34,7 +34,7 @@ public class SingleFile {
     private void parse() throws IOException {
         int bytesRecvd = 0;
         int c = 0;
-        byte[] buf = new byte[4096];
+        byte[] buf = new byte[1024*1000];
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         while (bytesRecvd < contentLength) {
             c = in.read(buf);

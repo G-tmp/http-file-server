@@ -22,7 +22,9 @@ public enum ContentType {
     MP3("MP3"),
     MP4("MP4"),
     WEBM("WEBM"),
-    XML("XML");
+    XML("XML"),
+    MD("md"),
+    PDF("pdf");
 
     private final String extension;
 
@@ -61,6 +63,10 @@ public enum ContentType {
                 return "video/mp4";
             case WEBM:
                 return "video/webm";
+            case MD:
+                return "text/markdown; charset=UTF-8";
+            case PDF:
+                return "application/pdf";
             default:
                 return null;
         }
