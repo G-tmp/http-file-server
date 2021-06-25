@@ -1,6 +1,7 @@
 package com.alpha.request;
 
 
+import com.alpha.utils.Reader;
 import com.alpha.handler.SingleFile;
 
 import java.io.*;
@@ -29,23 +30,9 @@ public class Request {
 
 
     public boolean parse() throws IOException {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        byte[] buf = new byte[2];
-        int c = 0;
-        while ((c = in.read(buf)) != -1) {
-            bytes.write(buf, 0, c);
-            if (bytes.toString().contains("\r\n\r")) {
-                int n = buf[c - 1];
-                while (n != 10) {   // 10 - LF
-                    n = in.read();
-                }
-                break;
-            }
-        }
+        byte[] data = Reader.readHttpRequestHeader(in);
 
-
-        String requestHeaders = new String(bytes.toByteArray(), "utf-8");
-        bytes.close();
+        String requestHeaders = new String(data, "utf-8");
         StringTokenizer reqTok = new StringTokenizer(requestHeaders, "\r\n");
 //        System.out.println(requestHeaders);
 

@@ -107,4 +107,10 @@ public class Response {
 
         out.flush();
     }
+
+
+    @Override
+    public String toString() {
+        return new String(body);
+    }
 }
