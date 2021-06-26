@@ -31,7 +31,7 @@ public class Reader {
 
 
     public static byte[] readHttpRequestBody(InputStream in, int contentLength) throws IOException {
-        return readHttpRequestBody(in, contentLength);
+        return readHttpRequestBody(in, contentLength, 1024 * 1000);
     }
 
 
