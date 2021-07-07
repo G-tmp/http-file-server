@@ -62,7 +62,7 @@ public class SocketHandler implements Runnable {
             System.out.println("** Connection reset **");
 //            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         } finally {
             if (out != null) {
                 try {

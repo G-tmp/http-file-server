@@ -193,7 +193,7 @@ public class MethodHandler {
             html.append("<a href=\"?showHidden=1\"><button>Show Hidden Files</button></a>&#10007;<p>"); // hidden
         }
         html.append("<form  method=\"POST\" enctype=\"multipart/form-data\">\n");
-//        html.append("<input type=\"text\" name=\"p1\" required=\"required\"> >>");
+        html.append("<input type=\"text\" name=\"p1\" required=\"required\"> >>");
         html.append("<input type=\"file\" name=\"file\" required=\"required\"> >>");
         html.append("<button type=\"submit\">Upload</button>\n</form>\n");
         html.append("<hr>\n");
