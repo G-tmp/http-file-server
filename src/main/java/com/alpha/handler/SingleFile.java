@@ -38,9 +38,9 @@ public class SingleFile {
         String s = new String(body, "utf-8");
         String[] split = s.split("\r\n\r\n", 2);
 
-        System.out.println(split[0]);
-        System.out.println("########################");
-        System.out.println(split[1]);
+//        System.out.println(split[0]);
+//        System.out.println("########################");
+//        System.out.println(split[1]);
 
         String tmp = split[0].substring(split[0].indexOf("name=") + 6);
         this.name = tmp.substring(0, tmp.indexOf("\"; "));

@@ -32,7 +32,7 @@ public class HttpServer {
             Socket clientSocket;
 
             while ((clientSocket = serverSocket.accept()) != null) {
-                System.out.println("Received connection from " + clientSocket.getRemoteSocketAddress().toString());
+                System.out.println("** Received connection from " + clientSocket.getRemoteSocketAddress().toString());
                 SocketHandler handler = new SocketHandler(clientSocket);
 
                 pool.submit(handler);
