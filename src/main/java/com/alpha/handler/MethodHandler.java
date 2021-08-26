@@ -5,11 +5,12 @@ import com.alpha.request.Request;
 import com.alpha.response.ContentType;
 import com.alpha.response.Response;
 import com.alpha.response.Status;
+import com.alpha.utils.FileListUtil;
 import com.alpha.utils.Reader;
 
 import java.io.*;
 import java.net.URLEncoder;
-import java.util.Arrays;
+
 
 
 public class MethodHandler {
@@ -84,10 +85,14 @@ public class MethodHandler {
 
                         if (i == 1) {
                             Cookie cookie = new Cookie("showHidden", String.valueOf(1));
+                            cookie.setMaxAge(60 * 60);
+                            cookie.setPath("/");
                             response.addCookie(cookie);
                             response.redirect(request.getPath());
                         } else {
                             Cookie cookie = new Cookie("showHidden", String.valueOf(0));
+                            cookie.setMaxAge(60 * 60);
+                            cookie.setPath("/");
                             response.addCookie(cookie);
                             response.redirect(request.getPath());
                         }
@@ -113,6 +118,7 @@ public class MethodHandler {
                     } catch (NumberFormatException e) {
                         html = mappingLocal(request.getPath(), 0);
                     }
+
 
                     response.setStatusCode(Status._200);
                     response.setContentType(ContentType.HTML);
@@ -174,6 +180,7 @@ public class MethodHandler {
     }
 
 
+
     private static String mappingLocal(String path) throws UnsupportedEncodingException {
         return mappingLocal(path, 0);
     }
@@ -181,6 +188,10 @@ public class MethodHandler {
 
     private static String mappingLocal(String path, int showHidden) throws UnsupportedEncodingException {
         File file = new File(HOME, path);
+        if (! file.isDirectory())
+            return null;
+
+
         StringBuffer html = new StringBuffer();
         html.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">");
         html.append("<html>\n<head>\n");
@@ -206,17 +217,11 @@ public class MethodHandler {
         }
         html.append("<ul>\n");
 
-        File[] files = null;
-        if (showHidden == 1) {
-            files = file.listFiles();
-        } else if (showHidden == 0) {
-            files = file.listFiles((filter) -> {
-                return !filter.isHidden();
-            });
-        }
+        File[] files = FileListUtil.showHidden(file, showHidden);
 
-        // TODO - sort by date, size and ignore case sensitivity
-        Arrays.sort(files);
+
+        FileListUtil.sort(files, FileListUtil.SortBy.NAME,0);
+
         for (File subfile : files) {
             String displayName = subfile.getName();
             String link = URLEncoder.encode(subfile.getName(), "UTF-8");
@@ -229,7 +234,7 @@ public class MethodHandler {
             } else if (subfile.isFile()) {
                 String element = String.format("<a href=\"%s\">%s</a>", link, displayName);
                 String download = String.format("<a href=\"%s\">%s</a>", link + "?download=1", "DL");
-                html.append("<li>").append(element).append("&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;").append(download).append("</li>\n");
+                html.append("<li>").append(element).append("&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;&nbsp;").append(download).append("</li>\n");
             } else {
                 // symbol link
                 displayName = displayName + "@";
@@ -237,10 +242,12 @@ public class MethodHandler {
                 html.append("<li>").append(element).append("</li>\n");
             }
 
+
         }
         html.append("</ul>\n<hr>\n</body>\n</html>");
 
         return String.valueOf(html);
     }
+
 
 }
