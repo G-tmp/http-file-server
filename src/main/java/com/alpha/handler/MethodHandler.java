@@ -196,7 +196,8 @@ public class MethodHandler {
         html.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">");
         html.append("<html>\n<head>\n");
         html.append("<meta name=\"Content-Type\" content=\"text/html; charset=utf-8\">\n");
-        html.append("<title>").append(path).append("</title>\n</head>\n");
+        html.append("<title>").append(path).append("</title>\n");
+        html.append("<style type=\"text/css\">\n").append("\tli{margin: 10px 0;}\n").append("</style>\n").append("</head>\n");
         html.append("<body>\n").append("<h1>Directory listing for ").append(path).append("</h1>\n");
         if (showHidden == 1) {
             html.append("<a href=\"?showHidden=0\"><button>Show Hidden Files</button></a>&#10004;<p>"); // show
@@ -229,8 +230,8 @@ public class MethodHandler {
             if (subfile.isDirectory()) {
                 displayName += "/";
                 link += "/";
-                String element = String.format("<a href=\"%s\">%s</a>", link, displayName);
-                html.append("<li>").append(element).append("</li>\n");
+                String element = String.format("<a href=\"%s\"><strong>%s</strong></a>", link, displayName);
+                html.append("<li style=>").append(element).append("</li>\n");
             } else if (subfile.isFile()) {
                 String element = String.format("<a href=\"%s\">%s</a>", link, displayName);
                 String download = String.format("<a href=\"%s\">%s</a>", link + "?download=1", "DL");
