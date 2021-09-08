@@ -66,7 +66,7 @@ add http response header ```Set-Cookie: key1=value1; key2=value2; ...```
 
 
 
-## Acknowledgments
+## Reference
 
 * [A Simple HTTP Server in Java](https://commandlinefanatic.com/cgi-bin/showarticle.cgi?article=art076)
 
