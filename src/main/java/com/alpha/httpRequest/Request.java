@@ -1,8 +1,8 @@
-package com.alpha.request;
+package com.alpha.httpRequest;
 
 
-import com.alpha.utils.Reader;
-import com.alpha.handler.SingleFile;
+import com.alpha.utils.HttpRequestParser;
+import com.alpha.utils.SingleFile;
 
 import java.io.*;
 import java.net.URLDecoder;
@@ -30,7 +30,7 @@ public class Request {
 
 
     public boolean parse() throws IOException {
-        byte[] data = Reader.readHttpRequestHeader(in);
+        byte[] data = HttpRequestParser.parseHttpRequestHeader(in);
 
         String requestHeaders = new String(data, "utf-8");
         StringTokenizer reqTok = new StringTokenizer(requestHeaders, "\r\n");

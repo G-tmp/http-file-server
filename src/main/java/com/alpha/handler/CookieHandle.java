@@ -1,9 +1,9 @@
 package com.alpha.handler;
 
+
 import java.io.IOException;
 
-public class FileHandler implements Handler {
-
+public class CookieHandle implements Handler {
 
     @Override
     public void handle() throws IOException {

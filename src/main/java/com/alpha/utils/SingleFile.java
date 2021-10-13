@@ -1,6 +1,4 @@
-package com.alpha.handler;
-
-import com.alpha.utils.Reader;
+package com.alpha.utils;
 
 import java.io.*;
 import java.util.Arrays;
@@ -34,7 +32,7 @@ public class SingleFile {
 
 
     private void parse() throws IOException {
-        this.body = Reader.readHttpRequestBody(in, contentLength);
+        this.body = HttpRequestParser.parseHttpRequestBody(in, contentLength);
         String s = new String(body, "utf-8");
         String[] split = s.split("\r\n\r\n", 2);
 

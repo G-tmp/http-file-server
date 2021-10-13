@@ -1,4 +1,4 @@
-package com.alpha.request;
+package com.alpha.httpRequest;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

@@ -1,44 +1,33 @@
-package com.alpha.handler;
+package com.alpha.httpRequest.method;
 
-import com.alpha.request.Cookie;
-import com.alpha.request.Request;
-import com.alpha.response.ContentType;
-import com.alpha.response.Response;
-import com.alpha.response.Status;
-import com.alpha.utils.FileListUtil;
-import com.alpha.utils.Reader;
+import com.alpha.httpRequest.Cookie;
+import com.alpha.httpRequest.Request;
+import com.alpha.httpResponse.ContentType;
+import com.alpha.httpResponse.Response;
+import com.alpha.httpResponse.Status;
+import com.alpha.server.HttpServer;
+import com.alpha.utils.FileReader;
+import com.alpha.utils.FilesFilter;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+public class Get implements Method {
+    private Request request;
+    private Response response;
 
 
-public class MethodHandler {
-
-    private final static String HOME = System.getProperty("user.home");
-
-
-    private MethodHandler() {
+    public Get(Request request, Response response){
+        this.request = request;
+        this.response = response;
     }
 
 
-    public static void doPost(Request request, Response response) throws IOException {
-        SingleFile singleFile = request.parsePost();
-
-        File path = singleFile.save(new File(HOME, request.getPath()).getPath(), singleFile.getFilename());
-        System.out.println(path);
-
-        String body = "success";
-        response.setStatusCode(Status._200);
-        response.setContentType(ContentType.HTML);
-        response.addBody(body);
-        response.setContentLength(body.getBytes().length);
-        response.send();
-    }
-
-
-    public static void doGet(Request request, Response response) throws IOException {
-        Status statusCode = statusCode(request);
+    @Override
+    public void execute() throws IOException {
+        Status statusCode = getStatusCode(request);
 
         switch (statusCode) {
             case _404:
@@ -58,8 +47,8 @@ public class MethodHandler {
                 break;
             case _206:
                 String range = request.getHeader("Range");
-                File file = new File(HOME, request.getPath());
-                byte[] data = com.alpha.utils.Reader.readFile(file);
+                File file = new File(HttpServer.HOME, request.getPath());
+                byte[] data = FileReader.readFile(file);
                 int length = data.length;
 
                 if (range != null && range.contains("bytes")) {
@@ -74,7 +63,7 @@ public class MethodHandler {
                 }
                 break;
             case _200:
-                File localFile = new File(HOME, request.getPath());
+                File localFile = new File(HttpServer.HOME, request.getPath());
                 // html
                 if (localFile.isDirectory()) {
 
@@ -127,7 +116,7 @@ public class MethodHandler {
                     response.send();
                 } else {
 
-                    byte[] d = Reader.readFile(localFile);
+                    byte[] d = FileReader.readFile(localFile);
                     int l = d.length;
 
                     String isDownload = request.getParameter("download");
@@ -150,9 +139,9 @@ public class MethodHandler {
     }
 
 
-    private static Status statusCode(Request request) {
+    private static Status getStatusCode(Request request) {
         String path = request.getPath();
-        File file = new File(HOME, path);
+        File file = new File(HttpServer.HOME, path);
         System.out.println(file);
 
         String range = request.getHeader("Range");
@@ -187,7 +176,7 @@ public class MethodHandler {
 
 
     private static String mappingLocal(String path, int showHidden) throws UnsupportedEncodingException {
-        File file = new File(HOME, path);
+        File file = new File(HttpServer.HOME, path);
         if (! file.isDirectory())
             return null;
 
@@ -213,15 +202,15 @@ public class MethodHandler {
         if ("/".equals(path)) {
             html.append("/");
         } else {
-            String parentPath = file.getParent().replace(HOME, "") + "/";
+            String parentPath = file.getParent().replace(HttpServer.HOME, "") + "/";
             html.append("<a href=\"").append(parentPath).append("\">").append("Parent Directory").append("</a>");
         }
         html.append("<ul>\n");
 
-        File[] files = FileListUtil.showHidden(file, showHidden);
+        File[] files = FilesFilter.showHidden(file, showHidden);
 
 
-        FileListUtil.sort(files, FileListUtil.SortBy.NAME,0);
+        FilesFilter.sort(files, FilesFilter.SortBy.NAME,0);
 
         for (File subfile : files) {
             String displayName = subfile.getName();
@@ -243,12 +232,10 @@ public class MethodHandler {
                 html.append("<li>").append(element).append("</li>\n");
             }
 
-
         }
         html.append("</ul>\n<hr>\n</body>\n</html>");
 
         return String.valueOf(html);
     }
-
 
 }

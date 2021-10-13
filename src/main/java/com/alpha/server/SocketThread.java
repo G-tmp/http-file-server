@@ -1,8 +1,11 @@
-package com.alpha.handler;
+package com.alpha.server;
 
-import com.alpha.request.Request;
-import com.alpha.response.Response;
-import com.alpha.response.Status;
+import com.alpha.httpRequest.Request;
+import com.alpha.httpRequest.method.Get;
+import com.alpha.httpRequest.method.Method;
+import com.alpha.httpRequest.method.Post;
+import com.alpha.httpResponse.Response;
+import com.alpha.httpResponse.Status;
 
 
 import java.io.*;
@@ -12,10 +15,10 @@ import java.net.SocketTimeoutException;
 
 
 
-public class SocketHandler implements Runnable {
+public class SocketThread implements Runnable {
     private Socket socket;
 
-    public SocketHandler(Socket socket) {
+    public SocketThread(Socket socket) {
         this.socket = socket;
     }
 
@@ -43,11 +46,13 @@ public class SocketHandler implements Runnable {
                     return;
                 }
 
+                Method method = null;
                 if ("GET".equals(request.getMethod())) {
-                    MethodHandler.doGet(request, response);
+                   method = new Get(request,response);
                 } else if ("POST".equals(request.getMethod())) {
-                    MethodHandler.doPost(request, response);
+                    method = new Post(request,response);
                 }
+                method.execute();
 
                 if ("close".equals(request.getHeader("Connection"))) {
                     done = true;
@@ -68,6 +73,13 @@ public class SocketHandler implements Runnable {
                 try {
                     out.flush();
                     out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (in != null) {
+                try {
+                    in.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

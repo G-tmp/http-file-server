@@ -1,7 +1,6 @@
 package com.alpha.server;
 
 import com.alpha.handler.Handler;
-import com.alpha.handler.SocketHandler;
 
 
 import java.io.*;
@@ -17,7 +16,7 @@ public class HttpServer {
     private ExecutorService pool = Executors.newFixedThreadPool(8);
     private static int DEFAULT_PORT = 8888;
     private Map<String, Map<String, Handler>> handlers = new HashMap<String, Map<String, Handler>>();
-
+    public final static String HOME = System.getProperty("user.home");
 
     public HttpServer(int port) {
         this.port = port;
@@ -25,15 +24,15 @@ public class HttpServer {
 
 
     public void start() {
-        ServerSocket serverSocket = null;
+        ServerSocket welcomeSocket = null;
         try {
-            serverSocket = new ServerSocket(port);
+            welcomeSocket = new ServerSocket(port);
             System.out.println("Listening on port " + port);
-            Socket clientSocket;
+            Socket connectionSocket;
 
-            while ((clientSocket = serverSocket.accept()) != null) {
-                System.out.println("** Received connection from " + clientSocket.getRemoteSocketAddress().toString());
-                SocketHandler handler = new SocketHandler(clientSocket);
+            while ((connectionSocket = welcomeSocket.accept()) != null) {
+                System.out.println("** Received connection from " + connectionSocket.getRemoteSocketAddress().toString());
+                SocketThread handler = new SocketThread(connectionSocket);
 
                 pool.submit(handler);
             }
@@ -43,7 +42,7 @@ public class HttpServer {
     }
 
 
-    public static int getValidPortParam(String args[]) throws NumberFormatException {
+    public static int getValidPort(String args[]) throws NumberFormatException {
         if (args.length > 0) {
             int port = Integer.parseInt(args[0]);
             if (port > 0 && port < 65535) {
@@ -57,13 +56,5 @@ public class HttpServer {
     }
 
 
-    public void addHandler(String method, String path, Handler handler)  {
-        Map<String, Handler> methodHandlers = handlers.get(method);
-        if (methodHandlers == null)  {
-            methodHandlers = new HashMap<String, Handler>();
-            handlers.put(method, methodHandlers);
-        }
-        methodHandlers.put(path, handler);
-    }
 
 }

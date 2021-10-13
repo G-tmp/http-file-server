@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class FileListUtil {
+public class FilesFilter {
 
-    private FileListUtil() {
+    private FilesFilter() {
     }
 
     public static enum SortBy {

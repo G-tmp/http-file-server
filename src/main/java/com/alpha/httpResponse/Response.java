@@ -1,6 +1,6 @@
-package com.alpha.response;
+package com.alpha.httpResponse;
 
-import com.alpha.request.Cookie;
+import com.alpha.httpRequest.Cookie;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -79,11 +79,13 @@ public class Response {
         headers.put("Connection", "keep-alive");
 
         out.write(("HTTP/1.1 " + statusMessage + "\r\n").getBytes());
-        for (String headerName : headers.keySet())
+        for (String headerName : headers.keySet()) {
             out.write((headerName + ": " + headers.get(headerName) + "\r\n").getBytes());
+        }
 
-        for (String cookie : cookies.values())
+        for (String cookie : cookies.values()) {
             out.write(("Set-Cookie" + ": " + cookie + "\r\n").getBytes());
+        }
 
         out.write("\r\n".getBytes());
         if (body != null) {
