@@ -6,20 +6,19 @@ import com.alpha.httpResponse.ContentType;
 import com.alpha.httpResponse.Response;
 import com.alpha.httpResponse.Status;
 import com.alpha.server.HttpServer;
-import com.alpha.utils.FileReader;
 import com.alpha.utils.FilesFilter;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLEncoder;
+import java.util.Arrays;
+
 
 public class Get implements Method {
     private Request request;
     private Response response;
 
 
-    public Get(Request request, Response response){
+    public Get(Request request, Response response) {
         this.request = request;
         this.response = response;
     }
@@ -27,39 +26,65 @@ public class Get implements Method {
 
     @Override
     public void execute() throws IOException {
-        Status statusCode = getStatusCode(request);
+        Status statusCode = Status.getStatusCode(request);
 
         switch (statusCode) {
             case _404:
                 response.setStatusCode(Status._404);
-                response.addBody("");
                 response.setContentLength(0);
-                response.send();
+                response.sendHeader();
                 break;
-            case _401:
-                response.setStatusCode(Status._401);
-                response.addBody("");
+            case _403:
+                response.setStatusCode(Status._403);
                 response.setContentLength(0);
-                response.send();
+                response.sendHeader();
                 break;
+            case _301:
             case _302:
                 response.redirect(request.getPath() + "/");
                 break;
             case _206:
                 String range = request.getHeader("Range");
                 File file = new File(HttpServer.HOME, request.getPath());
-                byte[] data = FileReader.readFile(file);
-                int length = data.length;
+                long length = file.length();
+//                FileInputStream fis = new FileInputStream(file);
 
                 if (range != null && range.contains("bytes")) {
-                    int start = Integer.parseInt(range.substring(range.indexOf("=") + 1, range.indexOf("-")));
+                    long start;
+                    long end;
+                    long n = 1000 * 1000 * 5;
+
+                    try {
+                        start = Integer.parseInt(range.substring(range.indexOf("=") + 1, range.indexOf("-")));
+                    } catch (NumberFormatException e) {
+                        start = 0;
+                    }
+
+                    try {
+                        end = Integer.parseInt(range.substring(range.indexOf("-") + 1));
+                    } catch (NumberFormatException e) {
+                        end = 0;
+                    }
+
+                    if (end == 0) {
+                        if (length - start > n) {
+                            end = n + start - 1;
+                        } else {
+                            end = length - 1;
+                        }
+                    }
+
+                    response.addHeader("Content-Range", String.format("bytes %d-%d/%d", start, end, length));
+                    response.setContentLength(end - start + 1);
                     response.setStatusCode(Status._206);
-                    // TODO - return partial bytes not all
-                    response.addHeader("Content-Range", String.format("bytes 0-%d/%d", length - 1, length));
+                    response.addHeader("Accept-Ranges", "bytes");
                     response.guessContentType(request.getPath());
-                    response.addBody(data);
-                    response.setContentLength(length);
-                    response.send();
+                    response.sendHeader();
+
+                    FileInputStream fis = new FileInputStream(file);
+                    byte[] b = fis.readAllBytes();
+                    response.sendBody(Arrays.copyOfRange(b, (int)start, (int)end+1));
+
                 }
                 break;
             case _200:
@@ -69,105 +94,79 @@ public class Get implements Method {
 
                     // check parameter
                     String showHidden = request.getParameter("showHidden");
-                    try {
-                        int i = Integer.parseInt(showHidden);
+                    if (showHidden != null) {
+                        try {
+                            int i = Integer.parseInt(showHidden);
 
-                        if (i == 1) {
-                            Cookie cookie = new Cookie("showHidden", String.valueOf(1));
-                            cookie.setMaxAge(60 * 60);
-                            cookie.setPath("/");
-                            response.addCookie(cookie);
-                            response.redirect(request.getPath());
-                        } else {
+                            if (i == 0) {
+                                Cookie cookie = new Cookie("showHidden", String.valueOf(0));
+                                cookie.setMaxAge(60 * 60);
+                                cookie.setPath("/");
+                                response.addCookie(cookie);
+                                response.redirect(request.getPath());
+                            } else {
+                                Cookie cookie = new Cookie("showHidden", String.valueOf(1));
+                                cookie.setMaxAge(60 * 60);
+                                cookie.setPath("/");
+                                response.addCookie(cookie);
+                                response.redirect(request.getPath());
+                            }
+
+                        } catch (NumberFormatException e) {
+                            // parameter showHidden is null or not a number
+                            // do not set cookie
+                            //if (showHidden != null)
                             Cookie cookie = new Cookie("showHidden", String.valueOf(0));
                             cookie.setMaxAge(60 * 60);
                             cookie.setPath("/");
                             response.addCookie(cookie);
                             response.redirect(request.getPath());
                         }
-
-                    } catch (NumberFormatException e) {
-                        // parameter showHidden is null or not a number
-                        // do not set cookie
-                        if (showHidden != null)
-                            response.redirect(request.getPath());
                     }
-
 
                     // check cookie
-                    String c = request.getCookie("showHidden");
                     String html = null;
-                    try {
-                        int i = Integer.parseInt(c);
-                        if (i == 1) {
-                            html = mappingLocal(request.getPath(), 1);
-                        } else {
+                    String cookie = request.getCookie("showHidden");
+                    if (cookie != null) {
+                        try {
+                            int i = Integer.parseInt(cookie);
+                            if (i == 0) {
+                                html = mappingLocal(request.getPath(), 0);
+                            } else {
+                                html = mappingLocal(request.getPath(), 1);
+                            }
+                        } catch (NumberFormatException e) {
                             html = mappingLocal(request.getPath(), 0);
                         }
-                    } catch (NumberFormatException e) {
+                    } else {
                         html = mappingLocal(request.getPath(), 0);
                     }
-
 
                     response.setStatusCode(Status._200);
                     response.setContentType(ContentType.HTML);
                     response.addBody(html);
                     response.setContentLength(html.getBytes().length);
                     response.send();
-                } else {
-
-                    byte[] d = FileReader.readFile(localFile);
-                    int l = d.length;
-
-                    String isDownload = request.getParameter("download");
-                    if (isDownload != null && "1".equals(isDownload)) {
-                        response.addHeader("Content-Disposition", "attachment; filename=\"" + localFile.getName() + "\"");
-                    }
-
+                } else {        // file
                     response.setStatusCode(Status._200);
                     response.addHeader("Accept-Ranges", "bytes");
                     response.guessContentType(request.getPath());
-                    response.addBody(d);
-                    response.setContentLength(l);
-                    response.send();
+                    response.setContentLength(localFile.length());
+                    response.sendHeader();
 
+                    byte[] buffer = new byte[1024 * 8];
+                    int count = 0;
+                    BufferedInputStream bis = new BufferedInputStream(new FileInputStream(localFile));
+                    while ((count = bis.read(buffer)) != -1) {
+                        response.sendBody(buffer, 0, count);
+                    }
+                    bis.close();
                 }
                 break;
             default:
                 throw new IOException("unhandled status code");
         }
     }
-
-
-    private static Status getStatusCode(Request request) {
-        String path = request.getPath();
-        File file = new File(HttpServer.HOME, path);
-        System.out.println(file);
-
-        String range = request.getHeader("Range");
-        if (range != null && range.contains("bytes"))
-            return Status._206;
-
-        if (!file.exists()) {
-            return Status._404;
-        }
-
-        if (!file.canRead()) {
-            return Status._401;
-        }
-
-        if (file.isDirectory()) {
-            if (!path.endsWith("/")) {
-                return Status._302;
-            } else
-
-                return Status._200;
-        } else {
-            // is file
-            return Status._200;
-        }
-    }
-
 
 
     private static String mappingLocal(String path) throws UnsupportedEncodingException {
@@ -177,7 +176,7 @@ public class Get implements Method {
 
     private static String mappingLocal(String path, int showHidden) throws UnsupportedEncodingException {
         File file = new File(HttpServer.HOME, path);
-        if (! file.isDirectory())
+        if (!file.isDirectory())
             return null;
 
 
@@ -210,7 +209,7 @@ public class Get implements Method {
         File[] files = FilesFilter.showHidden(file, showHidden);
 
 
-        FilesFilter.sort(files, FilesFilter.SortBy.NAME,0);
+        FilesFilter.sort(files, FilesFilter.SortBy.NAME, 0);
 
         for (File subfile : files) {
             String displayName = subfile.getName();

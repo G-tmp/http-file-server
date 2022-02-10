@@ -17,32 +17,32 @@ import java.net.SocketTimeoutException;
 
 public class SocketThread implements Runnable {
     private Socket socket;
+    private OutputStream out;
+    private InputStream in;
 
-    public SocketThread(Socket socket) {
+    public SocketThread(Socket socket) throws IOException {
         this.socket = socket;
+        in = socket.getInputStream();
+        out = socket.getOutputStream();
     }
 
 
     @Override
     public void run() {
-        OutputStream out = null;
-        InputStream in = null;
+        boolean done = false;
+        Request request = null;
+        Response response = null;
 
         try {
-            socket.setSoTimeout(6 * 1000);
-            boolean done = false;
-
-            in = socket.getInputStream();
-            out = socket.getOutputStream();
+            socket.setSoTimeout(180 * 1000);
 
             while (!done) {
-                Request request = new Request(in);
-                Response response = new Response(out);
+                request = new Request(in);
+                response = new Response(out);
 
                 if (!request.parse()) {
                     response.setStatusCode(Status._500);
-                    response.send();
-                    System.out.println("** parse exception");
+                    response.sendHeader();
                     return;
                 }
 
@@ -56,30 +56,23 @@ public class SocketThread implements Runnable {
 
                 if ("close".equals(request.getHeader("Connection"))) {
                     done = true;
-                    System.out.println("** connect close **");
-                    break;
+                    System.out.println("** client close connection **");
+                    continue;
                 }
             }
         } catch (SocketTimeoutException e) {
-            System.out.println("** timeout **");
+            System.out.printf("** %d timeout **",socket.getPort());
 //            e.printStackTrace();
         } catch (SocketException e) {
             System.out.println("** Connection reset **");
 //            e.printStackTrace();
         } catch (IOException e) {
+            System.out.println("** IOException  **");
 //            e.printStackTrace();
         } finally {
-            if (out != null) {
+            if (!socket.isClosed()){
                 try {
-                    out.flush();
-                    out.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (in != null) {
-                try {
-                    in.close();
+                    socket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

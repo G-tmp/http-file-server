@@ -12,11 +12,13 @@ import java.util.concurrent.Executors;
 
 
 public class HttpServer {
+    public final static String server = "XD";
+    public final static String HOME = System.getProperty("user.home");
     private int port;
     private ExecutorService pool = Executors.newFixedThreadPool(8);
     private static int DEFAULT_PORT = 8888;
-    private Map<String, Map<String, Handler>> handlers = new HashMap<String, Map<String, Handler>>();
-    public final static String HOME = System.getProperty("user.home");
+//    private Map<String, Map<String, Handler>> handlers = new HashMap<String, Map<String, Handler>>();
+
 
     public HttpServer(int port) {
         this.port = port;
@@ -28,7 +30,7 @@ public class HttpServer {
         try {
             welcomeSocket = new ServerSocket(port);
             System.out.println("Listening on port " + port);
-            Socket connectionSocket;
+            Socket connectionSocket = null;
 
             while ((connectionSocket = welcomeSocket.accept()) != null) {
                 System.out.println("** Received connection from " + connectionSocket.getRemoteSocketAddress().toString());

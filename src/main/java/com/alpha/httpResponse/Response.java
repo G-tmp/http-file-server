@@ -1,6 +1,7 @@
 package com.alpha.httpResponse;
 
 import com.alpha.httpRequest.Cookie;
+import com.alpha.server.HttpServer;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -31,7 +32,8 @@ public class Response {
         this.headers.put("Content-Type", contentType.toString());
     }
 
-    public void setContentLength(int length){
+
+    public void setContentLength(long length){
         this.headers.put("Content-Length", String.valueOf(length));
     }
 
@@ -76,6 +78,11 @@ public class Response {
 
 
     public void send() throws IOException {
+        if(out == null){
+            throw new IOException("socket output stream closed");
+        }
+
+        headers.put("Server", HttpServer.server);
         headers.put("Connection", "keep-alive");
 
         out.write(("HTTP/1.1 " + statusMessage + "\r\n").getBytes());
@@ -97,9 +104,16 @@ public class Response {
 
 
     public void redirect(String path) throws IOException {
+        if(out == null){
+            throw new IOException("socket output stream closed");
+        }
+
+        headers.put("Location", path);
+        headers.put("Server", HttpServer.server);
         out.write(("HTTP/1.1 " + Status._302.toString() + "\r\n").getBytes());
-        out.write(("Location" + ": " + path + "\r\n").getBytes());
-//        out.write(("Connection" + ": " + "close" + "\r\n").getBytes());
+        for (String headerName : headers.keySet()) {
+            out.write((headerName + ": " + headers.get(headerName) + "\r\n").getBytes());
+        }
 
         for (String cookie : cookies.values()) {
             out.write(("Set-Cookie" + ": " + cookie + "\r\n").getBytes());
@@ -108,6 +122,43 @@ public class Response {
         out.write("\r\n".getBytes());
 
         out.flush();
+    }
+
+    public void sendHeader() throws IOException {
+        if(out == null){
+            throw new IOException("socket output stream closed");
+        }
+
+        headers.put("Connection", "keep-alive");
+        headers.put("Server", HttpServer.server);
+
+        out.write(("HTTP/1.1 " + statusMessage + "\r\n").getBytes());
+        for (String headerName : headers.keySet()) {
+            out.write((headerName + ": " + headers.get(headerName) + "\r\n").getBytes());
+        }
+
+        for (String cookie : cookies.values()) {
+            out.write(("Set-Cookie" + ": " + cookie + "\r\n").getBytes());
+        }
+
+        out.write("\r\n".getBytes());
+
+        out.flush();
+    }
+
+
+    public void sendBody(byte[] b) throws IOException {
+        this.sendBody(b, 0, b.length);
+    }
+
+
+    public void sendBody(byte[] b, int offset, int len) throws IOException {
+        if(out == null){
+            throw new IOException("socket output stream closed");
+        }
+
+        out.write(b, offset, len);
+//        out.flush();
     }
 
 

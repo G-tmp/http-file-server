@@ -13,7 +13,7 @@ import java.util.StringTokenizer;
 public class Request {
     private String method;
     private String path;    // do not contain query parameters
-    private String fullUrl;     // maybe contain query parameters
+    private String fullPath;     // maybe contain query parameters
     private String version;
     private Map<String, String> headers;    // store header name and value
     private Map<String, String> queryParameters;
@@ -33,8 +33,8 @@ public class Request {
         byte[] data = HttpRequestParser.parseHttpRequestHeader(in);
 
         String requestHeaders = new String(data, "utf-8");
+        //System.out.println(requestHeaders);
         StringTokenizer reqTok = new StringTokenizer(requestHeaders, "\r\n");
-//        System.out.println(requestHeaders);
 
         // parse initial line
         String initialLine = reqTok.nextToken();
@@ -49,7 +49,7 @@ public class Request {
             }
         }
         method = components[0];
-        path = fullUrl = URLDecoder.decode(components[1], "utf-8");
+        path = fullPath = URLDecoder.decode(components[1], "utf-8");
         version = components[2];
 
 
@@ -79,11 +79,11 @@ public class Request {
         }
 
         // parse request query parameters
-        if (!fullUrl.contains("?")) {
-            path = fullUrl;
+        if (!fullPath.contains("?")) {
+            path = fullPath;
         } else {
-            path = fullUrl.substring(0, fullUrl.indexOf("?"));
-            parseQueryParameters(fullUrl.substring(fullUrl.indexOf("?") + 1));
+            path = fullPath.substring(0, fullPath.indexOf("?"));
+            parseQueryParameters(fullPath.substring(fullPath.indexOf("?") + 1));
         }
 
         return true;
@@ -114,12 +114,6 @@ public class Request {
 
     public SingleFile parsePost() throws IOException {
         return new SingleFile(in, headers);
-    }
-
-
-    @Override
-    public String toString() {
-        return method + " " + path + " " + headers.toString();
     }
 
 
@@ -159,8 +153,8 @@ public class Request {
     }
 
 
-    public String getFullUrl() {
-        return fullUrl;
+    public String getFullPath() {
+        return fullPath;
     }
 
 
@@ -173,4 +167,13 @@ public class Request {
         return version;
     }
 
+
+    @Override
+    public String toString() {
+        return "Request{" +
+                method + fullPath + version + '\n' +
+                "headers=" + headers + "\n" +
+                "cookies=" + cookies + "\n" +
+                '}';
+    }
 }

@@ -27,7 +27,7 @@ public class Post implements Method {
         File path = singleFile.save(new File(HttpServer.HOME, request.getPath()).getPath(), singleFile.getFilename());
         System.out.println(path);
 
-        String body = "success";
+        String body = "<h3>Done</h3>";
         response.setStatusCode(Status._200);
         response.setContentType(ContentType.HTML);
         response.addBody(body);
