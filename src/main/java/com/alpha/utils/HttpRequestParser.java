@@ -4,7 +4,22 @@ package com.alpha.utils;
 import java.io.*;
 
 /**
- *    http request header and body split by "\r\n\r\n" (double CRLF)
+ *    Http request header and body split by "\r\n\r\n"
+ *    When upload file, data and parameter also split by "\r\n\r\n" in post request body
+ *
+ *
+ *
+ *  POST / HTTP/1.1
+ *  Content-Type: application/x-www-form-urlencoded
+ *  Content-Length: 55555
+ *
+ *  ------WebKitFormBoundary
+ *  Content-Disposition: form-data; name="file"; filename="1234.png"
+ *  Content-Type: image/png
+ *
+ *  [data]
+ *  ------WebKitFormBoundary--
+ *
  */
 public class HttpRequestParser {
 
@@ -12,42 +27,25 @@ public class HttpRequestParser {
     }
 
 
-    public static byte[] parseHttpRequestHeader(InputStream in) throws IOException {
+
+    public static byte[] parse(InputStream in) throws IOException {
 
         try ( ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             byte[] buf = new byte[2];
             int read = 0;
+            int n;
 
             while ((read = in.read(buf)) != -1) {
                 baos.write(buf, 0, read);
-                if (baos.toString("utf-8").contains("\r\n\r")) {
-                    int n = buf[read - 1];
-                    while (n != 10) {   // 10 - LF or \n
+                if (baos.toString().contains("\r\n\r")) {
+                    n = buf[read - 1];
+                    while (n != 10) {   // 10 - ascii code of  LF or \n
                         n = in.read();
+                        baos.write(n);
                     }
+
                     break;
                 }
-            }
-
-            return baos.toByteArray();
-        }
-    }
-
-
-    public static byte[] parseHttpRequestBody(InputStream in, int contentLength) throws IOException {
-        return parseHttpRequestBody(in, contentLength, 1024 * 1000);
-    }
-
-
-    public static byte[] parseHttpRequestBody(InputStream in, int contentLength, int bufSize) throws IOException {
-        int totalRead = 0;
-        int read = 0;
-        byte[] buf = new byte[bufSize];
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            while (totalRead < contentLength) {
-                read = in.read(buf);
-                baos.write(buf, 0, read);
-                totalRead += read;
             }
 
             return baos.toByteArray();

@@ -51,7 +51,7 @@ public class Get implements Method {
                 if (range != null && range.contains("bytes")) {
                     long start;
                     long end;
-                    long n = 1000 * 1000 * 5;
+                    long n = 1000 * 1000 * 3;
 
                     try {
                         start = Long.parseLong(range.substring(range.indexOf("=") + 1, range.indexOf("-")));
@@ -90,7 +90,7 @@ public class Get implements Method {
                     response.setContentLength(len);
                     response.sendHeader();
 
-                    byte[] b = new byte[1024 * 8];
+                    byte[] b = new byte[1024 * 16];
                     int c = 0;
                     long read = 0;
                     FileInputStream fis = new FileInputStream(file);
@@ -174,7 +174,7 @@ public class Get implements Method {
                     response.setContentLength(localFile.length());
                     response.sendHeader();
 
-                    byte[] buffer = new byte[1024 * 8];
+                    byte[] buffer = new byte[1024 * 16];
                     int count = 0;
                     FileInputStream fis = new FileInputStream(localFile);
                     while ((count = fis.read(buffer)) != -1) {

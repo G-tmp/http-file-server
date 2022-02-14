@@ -24,7 +24,7 @@ public class Post implements Method {
     public void execute() throws IOException {
         SingleFile singleFile = request.parsePost();
 
-        File path = singleFile.save(new File(HttpServer.HOME, request.getPath()).getPath(), singleFile.getFilename());
+        File path = singleFile.save(new File(HttpServer.HOME, request.getPath()).getPath());
         System.out.println(path);
 
         String body = "<h3>Done</h3>";

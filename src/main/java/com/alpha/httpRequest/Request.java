@@ -30,7 +30,7 @@ public class Request {
 
 
     public boolean parse() throws IOException {
-        byte[] data = HttpRequestParser.parseHttpRequestHeader(in);
+        byte[] data = HttpRequestParser.parse(in);
 
         String requestHeaders = new String(data, "utf-8");
         //System.out.println(requestHeaders);
