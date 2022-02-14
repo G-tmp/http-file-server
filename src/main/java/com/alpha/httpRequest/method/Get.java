@@ -10,7 +10,6 @@ import com.alpha.utils.FilesFilter;
 
 import java.io.*;
 import java.net.URLEncoder;
-import java.util.Arrays;
 
 
 public class Get implements Method {
@@ -46,8 +45,8 @@ public class Get implements Method {
             case _206:
                 String range = request.getHeader("Range");
                 File file = new File(HttpServer.HOME, request.getPath());
-                long length = file.length();
-//                FileInputStream fis = new FileInputStream(file);
+                long fsize = file.length();
+                long len = 0;
 
                 if (range != null && range.contains("bytes")) {
                     long start;
@@ -55,36 +54,58 @@ public class Get implements Method {
                     long n = 1000 * 1000 * 5;
 
                     try {
-                        start = Integer.parseInt(range.substring(range.indexOf("=") + 1, range.indexOf("-")));
+                        start = Long.parseLong(range.substring(range.indexOf("=") + 1, range.indexOf("-")));
                     } catch (NumberFormatException e) {
                         start = 0;
                     }
 
                     try {
-                        end = Integer.parseInt(range.substring(range.indexOf("-") + 1));
+                        end = Long.parseLong(range.substring(range.indexOf("-") + 1));
                     } catch (NumberFormatException e) {
                         end = 0;
                     }
 
-                    if (end == 0) {
-                        if (length - start > n) {
-                            end = n + start - 1;
-                        } else {
-                            end = length - 1;
-                        }
+                    if (start < 0 || start > fsize || end < 0 || (end < start && end > 0)) {
+                        response.setContentLength(0);
+                        response.setStatusCode(Status._416);
+                        response.addHeader("Content-Range", String.format("bytes */%d", fsize));
+                        response.sendHeader();
+                        break;
                     }
 
-                    response.addHeader("Content-Range", String.format("bytes %d-%d/%d", start, end, length));
-                    response.setContentLength(end - start + 1);
+                    if (end == 0) {
+                        if (fsize > start + n) {
+                            end = start + n - 1;
+                        } else {
+                            end = fsize - 1;
+                        }
+                    } else if (end > fsize) {
+                        end = fsize - 1;
+                    }
+
+                    len = end - start + 1;
                     response.setStatusCode(Status._206);
-                    response.addHeader("Accept-Ranges", "bytes");
+                    response.addHeader("Content-Range", String.format("bytes %d-%d/%d", start, end, fsize));
                     response.guessContentType(request.getPath());
+                    response.setContentLength(len);
                     response.sendHeader();
 
+                    byte[] b = new byte[1024 * 8];
+                    int c = 0;
+                    long read = 0;
                     FileInputStream fis = new FileInputStream(file);
-                    byte[] b = fis.readAllBytes();
-                    response.sendBody(Arrays.copyOfRange(b, (int)start, (int)end+1));
+                    long a = fis.skip(start);
 
+                    while (read < len) {
+                        c = fis.read(b, 0, read + b.length > len ? (int) (len - read) : b.length);
+                        if (c == -1)
+                            break;
+
+                        read += c;
+                        response.sendBody(b, 0, c);
+                    }
+
+                    fis.close();
                 }
                 break;
             case _200:
@@ -113,9 +134,8 @@ public class Get implements Method {
                             }
 
                         } catch (NumberFormatException e) {
-                            // parameter showHidden is null or not a number
-                            // do not set cookie
-                            //if (showHidden != null)
+                            // Parameter showHidden is null or not a number
+                            // Do not set cookie
                             Cookie cookie = new Cookie("showHidden", String.valueOf(0));
                             cookie.setMaxAge(60 * 60);
                             cookie.setPath("/");
@@ -149,18 +169,19 @@ public class Get implements Method {
                     response.send();
                 } else {        // file
                     response.setStatusCode(Status._200);
-                    response.addHeader("Accept-Ranges", "bytes");
+
                     response.guessContentType(request.getPath());
                     response.setContentLength(localFile.length());
                     response.sendHeader();
 
                     byte[] buffer = new byte[1024 * 8];
                     int count = 0;
-                    BufferedInputStream bis = new BufferedInputStream(new FileInputStream(localFile));
-                    while ((count = bis.read(buffer)) != -1) {
+                    FileInputStream fis = new FileInputStream(localFile);
+                    while ((count = fis.read(buffer)) != -1) {
                         response.sendBody(buffer, 0, count);
                     }
-                    bis.close();
+
+                    fis.close();
                 }
                 break;
             default:

@@ -1,6 +1,8 @@
 package com.alpha.utils;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -70,4 +72,18 @@ public class FilesFilter {
         return files;
     }
 
+    public static void myskip(InputStream is, long n) throws IOException {
+        while(n > 0) {
+            long c = is.skip(n);
+            if( c > 0 ) {
+                n -= c;
+            } else if( c == 0 ) { // should we retry? lets read one byte
+                if( is.read() == -1)  // EOF
+                    break;
+                else
+                    n--;
+            } else // negative? this should never happen but...
+                throw new IOException("skip() returned a negative value. This should never happen");
+        }
+    }
 }

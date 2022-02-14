@@ -4,7 +4,7 @@ package com.alpha.httpResponse;
 /**
  * ContentType enum uses the file extension to loosely map the
  * available content type based on common media types:
- * <p>
+ *
  * http://en.wikipedia.org/wiki/Internet_media_type
  */
 public enum ContentType {
@@ -22,6 +22,7 @@ public enum ContentType {
     MP3("MP3"),
     MP4("MP4"),
     WEBM("WEBM"),
+    WEBP("WEBP"),
     XML("XML"),
     MD("md"),
     PDF("pdf");
@@ -63,6 +64,8 @@ public enum ContentType {
                 return "video/mp4";
             case WEBM:
                 return "video/webm";
+            case WEBP:
+                return "image/webp";
             case MD:
                 return "text/markdown; charset=UTF-8";
             case PDF:

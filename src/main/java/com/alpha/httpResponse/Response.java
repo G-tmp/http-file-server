@@ -38,25 +38,6 @@ public class Response {
     }
 
 
-    // TODO - determine file type by file signature
-    public void guessContentType(String url) {
-        if (!url.contains(".")) {
-            this.headers.put("Content-Type", ContentType.TXT.toString());
-            return;
-        }
-
-        String ext = url.substring(url.lastIndexOf(".") + 1);
-        try {
-            ContentType type = ContentType.valueOf(ext.toUpperCase());
-            this.headers.put("Content-Type", type.toString());
-        } catch (IllegalArgumentException e) {
-            // Http response not add "Content-Type" header
-            // browser will automatic check type
-            // So do nothing
-        }
-    }
-
-
     public void addCookie(Cookie cookie) {
         cookies.put(cookie.getName(), cookie.toString());
     }
@@ -77,24 +58,34 @@ public class Response {
     }
 
 
+    // TODO - determine file type by file signature
+    public ContentType guessContentType(String url) {
+        if (!url.contains(".")) {
+            this.headers.put("Content-Type", ContentType.TXT.toString());
+            return ContentType.TXT;
+        }
+
+        String ext = url.substring(url.lastIndexOf(".") + 1);
+        try {
+            ContentType type = ContentType.valueOf(ext.toUpperCase());
+            this.headers.put("Content-Type", type.toString());
+            return type;
+        } catch (IllegalArgumentException e) {
+            // Http response not add "Content-Type" header
+            // browser will automatic check type
+            // So do nothing
+            return null;
+        }
+    }
+
+
     public void send() throws IOException {
         if(out == null){
             throw new IOException("socket output stream closed");
         }
 
-        headers.put("Server", HttpServer.server);
-        headers.put("Connection", "keep-alive");
+        this.sendHeader();
 
-        out.write(("HTTP/1.1 " + statusMessage + "\r\n").getBytes());
-        for (String headerName : headers.keySet()) {
-            out.write((headerName + ": " + headers.get(headerName) + "\r\n").getBytes());
-        }
-
-        for (String cookie : cookies.values()) {
-            out.write(("Set-Cookie" + ": " + cookie + "\r\n").getBytes());
-        }
-
-        out.write("\r\n".getBytes());
         if (body != null) {
             out.write(body);
         }
@@ -103,52 +94,35 @@ public class Response {
     }
 
 
-    public void redirect(String path) throws IOException {
-        if(out == null){
-            throw new IOException("socket output stream closed");
-        }
-
-        headers.put("Location", path);
-        headers.put("Server", HttpServer.server);
-        out.write(("HTTP/1.1 " + Status._302.toString() + "\r\n").getBytes());
-        for (String headerName : headers.keySet()) {
-            out.write((headerName + ": " + headers.get(headerName) + "\r\n").getBytes());
-        }
-
-        for (String cookie : cookies.values()) {
-            out.write(("Set-Cookie" + ": " + cookie + "\r\n").getBytes());
-        }
-
-        out.write("\r\n".getBytes());
-
-        out.flush();
-    }
-
     public void sendHeader() throws IOException {
         if(out == null){
             throw new IOException("socket output stream closed");
         }
 
+        headers.put("Server", HttpServer.SERVER);
+        headers.put("Accept-Ranges", "bytes");
         headers.put("Connection", "keep-alive");
-        headers.put("Server", HttpServer.server);
 
-        out.write(("HTTP/1.1 " + statusMessage + "\r\n").getBytes());
+        StringBuilder sb = new StringBuilder();
+        sb.append(HttpServer.PROTOCOL_VERSION).append(" ").append(statusMessage).append("\r\n");
+
         for (String headerName : headers.keySet()) {
-            out.write((headerName + ": " + headers.get(headerName) + "\r\n").getBytes());
+            sb.append(headerName).append(": ").append(headers.get(headerName)).append("\r\n");
         }
 
         for (String cookie : cookies.values()) {
-            out.write(("Set-Cookie" + ": " + cookie + "\r\n").getBytes());
+            sb.append("Set-Cookie: ").append(cookie).append("\r\n");
         }
 
-        out.write("\r\n".getBytes());
+        sb.append("\r\n");
+        out.write(sb.toString().getBytes());
 
         out.flush();
     }
 
 
     public void sendBody(byte[] b) throws IOException {
-        this.sendBody(b, 0, b.length);
+        sendBody(b, 0, b.length);
     }
 
 
@@ -158,7 +132,35 @@ public class Response {
         }
 
         out.write(b, offset, len);
-//        out.flush();
+        out.flush();
+    }
+
+
+    public void redirect(String path) throws IOException {
+        if(out == null){
+            throw new IOException("socket output stream closed");
+        }
+
+        headers.put("Server", HttpServer.SERVER);
+        headers.put("Accept-Ranges", "bytes");
+        headers.put("Location", path);
+        headers.put("Connection", "close");
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(HttpServer.PROTOCOL_VERSION).append(" ").append(Status._302.toString()).append("\r\n");
+
+        for (String headerName : headers.keySet()) {
+            sb.append(headerName).append(": ").append(headers.get(headerName)).append("\r\n");
+        }
+
+        for (String cookie : cookies.values()) {
+            sb.append("Set-Cookie: ").append(cookie).append("\r\n");
+        }
+
+        sb.append("\r\n");
+        out.write(sb.toString().getBytes());
+
+        out.flush();
     }
 
 

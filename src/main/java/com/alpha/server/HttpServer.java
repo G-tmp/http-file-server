@@ -1,18 +1,14 @@
 package com.alpha.server;
 
-import com.alpha.handler.Handler;
-
-
 import java.io.*;
 import java.net.*;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
 public class HttpServer {
-    public final static String server = "XD";
+    public final static String PROTOCOL_VERSION = "HTTP/1.1";
+    public final static String SERVER = "XD";
     public final static String HOME = System.getProperty("user.home");
     private int port;
     private ExecutorService pool = Executors.newFixedThreadPool(8);
@@ -33,9 +29,7 @@ public class HttpServer {
             Socket connectionSocket = null;
 
             while ((connectionSocket = welcomeSocket.accept()) != null) {
-                System.out.println("** Received connection from " + connectionSocket.getRemoteSocketAddress().toString());
                 SocketThread handler = new SocketThread(connectionSocket);
-
                 pool.submit(handler);
             }
         } catch (IOException e) {

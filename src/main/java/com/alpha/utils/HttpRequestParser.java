@@ -1,6 +1,5 @@
 package com.alpha.utils;
 
-import com.alpha.server.httpParseException;
 
 import java.io.*;
 
@@ -41,7 +40,7 @@ public class HttpRequestParser {
 
 
     public static byte[] parseHttpRequestBody(InputStream in, int contentLength, int bufSize) throws IOException {
-        long totalRead = 0;
+        int totalRead = 0;
         int read = 0;
         byte[] buf = new byte[bufSize];
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {

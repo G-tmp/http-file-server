@@ -29,21 +29,21 @@ public class SocketThread implements Runnable {
 
     @Override
     public void run() {
+        System.out.println("** Received connection from " + socket.getRemoteSocketAddress().toString());
         boolean done = false;
-        Request request = null;
-        Response response = null;
 
         try {
-            socket.setSoTimeout(180 * 1000);
+            socket.setSoTimeout(10 * 1000);
 
             while (!done) {
-                request = new Request(in);
-                response = new Response(out);
+                Request request = new Request(in);
+                Response response = new Response(out);
 
                 if (!request.parse()) {
                     response.setStatusCode(Status._500);
+                    response.setContentLength(0);
                     response.sendHeader();
-                    return;
+                    break;
                 }
 
                 Method method = null;
@@ -51,31 +51,32 @@ public class SocketThread implements Runnable {
                    method = new Get(request,response);
                 } else if ("POST".equals(request.getMethod())) {
                     method = new Post(request,response);
+                }else {
+                    break;
                 }
+
                 method.execute();
 
                 if ("close".equals(request.getHeader("Connection"))) {
                     done = true;
-                    System.out.println("** client close connection **");
-                    continue;
+                    break;
                 }
             }
+
         } catch (SocketTimeoutException e) {
-            System.out.printf("** %d timeout **",socket.getPort());
+            System.out.printf("** [%d] timeout **\n",socket.getPort());
 //            e.printStackTrace();
         } catch (SocketException e) {
-            System.out.println("** Connection reset **");
+            System.out.printf("** [%d] client closed connection **\n", socket.getPort());
 //            e.printStackTrace();
         } catch (IOException e) {
             System.out.println("** IOException  **");
 //            e.printStackTrace();
         } finally {
-            if (!socket.isClosed()){
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }

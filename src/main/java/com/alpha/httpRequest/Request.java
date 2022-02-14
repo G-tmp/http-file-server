@@ -52,7 +52,6 @@ public class Request {
         path = fullPath = URLDecoder.decode(components[1], "utf-8");
         version = components[2];
 
-
         // parse request headers
         while (reqTok.hasMoreTokens()) {
             String headerLine = reqTok.nextToken();
