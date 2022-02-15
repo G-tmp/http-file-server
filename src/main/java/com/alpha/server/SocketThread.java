@@ -70,8 +70,7 @@ public class SocketThread implements Runnable {
             System.out.printf("** [%d] client closed connection **\n", socket.getPort());
 //            e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("** IOException  **");
-//            e.printStackTrace();
+            e.printStackTrace();
         } finally {
             try {
                 socket.close();

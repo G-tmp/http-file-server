@@ -25,9 +25,9 @@ public class Post implements Method {
         SingleFile singleFile = request.parsePost();
 
         File path = singleFile.save(new File(HttpServer.HOME, request.getPath()).getPath());
-        System.out.println(path);
+//        System.out.println(path);
 
-        String body = "<h3>Done</h3>";
+        String body = "<h1>Done</h1>";
         response.setStatusCode(Status._200);
         response.setContentType(ContentType.HTML);
         response.addBody(body);

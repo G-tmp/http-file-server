@@ -41,25 +41,26 @@ public class SingleFile {
 
     public File save(String parent) throws IOException {
         File file = new File(parent, this.filename);
-        FileOutputStream fos = new FileOutputStream(file);
+//        FileOutputStream fos = new FileOutputStream(file);
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
 
         long read = 0;
         int c;
-        byte[] b = new byte[1024 * 16];
+        byte[] b = new byte[1024 * 8];
         while (read < fileLen) {
             c = in.read(b);
             if (c == -1)
                 break;
 
             if (read + c > fileLen)
-                fos.write(b, 0, (int) (fileLen - read));
+                bos.write(b, 0, (int) (fileLen - read));
             else
-                fos.write(b, 0, c);
+                bos.write(b, 0, c);
 
             read += c;
         }
 
-        fos.close();
+        bos.close();
 
         return file;
     }

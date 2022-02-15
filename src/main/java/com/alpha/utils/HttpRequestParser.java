@@ -10,15 +10,15 @@ import java.io.*;
  *
  *
  *  POST / HTTP/1.1
- *  Content-Type: application/x-www-form-urlencoded
+ *  Content-Type: multipart/form-data; boundary=----WebKitFormBoundarydGnETrh9DhBD8Hlf
  *  Content-Length: 55555
  *
- *  ------WebKitFormBoundary
+ *  ------WebKitFormBoundarydGnETrh9DhBD8Hlf
  *  Content-Disposition: form-data; name="file"; filename="1234.png"
  *  Content-Type: image/png
  *
  *  [data]
- *  ------WebKitFormBoundary--
+ *  ------WebKitFormBoundarydGnETrh9DhBD8Hlf--
  *
  */
 public class HttpRequestParser {

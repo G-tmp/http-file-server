@@ -90,14 +90,14 @@ public class Get implements Method {
                     response.setContentLength(len);
                     response.sendHeader();
 
-                    byte[] b = new byte[1024 * 16];
+                    byte[] b = new byte[1024 * 8];
                     int c = 0;
                     long read = 0;
-                    FileInputStream fis = new FileInputStream(file);
-                    long a = fis.skip(start);
+                    BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+                    long a = bis.skip(start);
 
                     while (read < len) {
-                        c = fis.read(b, 0, read + b.length > len ? (int) (len - read) : b.length);
+                        c = bis.read(b, 0, read + b.length > len ? (int) (len - read) : b.length);
                         if (c == -1)
                             break;
 
@@ -105,7 +105,7 @@ public class Get implements Method {
                         response.sendBody(b, 0, c);
                     }
 
-                    fis.close();
+                    bis.close();
                 }
                 break;
             case _200:
@@ -174,14 +174,14 @@ public class Get implements Method {
                     response.setContentLength(localFile.length());
                     response.sendHeader();
 
-                    byte[] buffer = new byte[1024 * 16];
+                    byte[] buffer = new byte[1024 * 8];
                     int count = 0;
-                    FileInputStream fis = new FileInputStream(localFile);
-                    while ((count = fis.read(buffer)) != -1) {
+                    BufferedInputStream  bis = new BufferedInputStream(new FileInputStream(localFile));
+                    while ((count = bis.read(buffer)) != -1) {
                         response.sendBody(buffer, 0, count);
                     }
 
-                    fis.close();
+                    bis.close();
                 }
                 break;
             default:
