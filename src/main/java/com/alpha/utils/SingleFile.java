@@ -1,6 +1,7 @@
 package com.alpha.utils;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
@@ -31,7 +32,7 @@ public class SingleFile {
 
     private void parse() throws IOException {
         byte[] parameterPair = HttpRequestParser.parse(in);
-        String s = new String(parameterPair, "utf-8");
+        String s = new String(parameterPair, StandardCharsets.UTF_8);
 
         String split = s.split("\r\n")[1];
         this.filename = split.substring(split.indexOf("filename=\"") + 10, split.lastIndexOf("\""));
@@ -39,9 +40,8 @@ public class SingleFile {
     }
 
 
-    public File save(String parent) throws IOException {
-        File file = new File(parent, this.filename);
-//        FileOutputStream fos = new FileOutputStream(file);
+    public File save(String dir) throws IOException {
+        File file = new File(dir, this.filename);
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
 
         long read = 0;
@@ -61,6 +61,9 @@ public class SingleFile {
         }
 
         bos.close();
+        if (file.length() != fileLen) {
+            file.delete();
+        }
 
         return file;
     }

@@ -6,10 +6,9 @@ import com.alpha.httpResponse.ContentType;
 import com.alpha.httpResponse.Response;
 import com.alpha.httpResponse.Status;
 import com.alpha.server.HttpServer;
-import com.alpha.utils.FilesFilter;
+import com.alpha.utils.HTMLMaker;
 
 import java.io.*;
-import java.net.URLEncoder;
 
 
 public class Get implements Method {
@@ -113,7 +112,7 @@ public class Get implements Method {
                 // html
                 if (localFile.isDirectory()) {
 
-                    // check parameter
+                    // check parameter showHidden
                     String showHidden = request.getParameter("showHidden");
                     if (showHidden != null) {
                         try {
@@ -144,6 +143,7 @@ public class Get implements Method {
                         }
                     }
 
+
                     // check cookie
                     String html = null;
                     String cookie = request.getCookie("showHidden");
@@ -162,12 +162,21 @@ public class Get implements Method {
                         html = mappingLocal(request.getPath(), 0);
                     }
 
+
                     response.setStatusCode(Status._200);
                     response.setContentType(ContentType.HTML);
                     response.addBody(html);
                     response.setContentLength(html.getBytes().length);
                     response.send();
+
                 } else {        // file
+
+                    // check parameter download
+                    String download = request.getParameter("download");
+                    if (download != null){
+                        response.addHeader("Content-Disposition","attachment;");
+                    }
+
                     response.setStatusCode(Status._200);
 
                     response.guessContentType(request.getPath());
@@ -196,66 +205,7 @@ public class Get implements Method {
 
 
     private static String mappingLocal(String path, int showHidden) throws UnsupportedEncodingException {
-        File file = new File(HttpServer.HOME, path);
-        if (!file.isDirectory())
-            return null;
-
-
-        StringBuffer html = new StringBuffer();
-        html.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">");
-        html.append("<html>\n<head>\n");
-        html.append("<meta name=\"Content-Type\" content=\"text/html; charset=utf-8\">\n");
-        html.append("<title>").append(path).append("</title>\n");
-        html.append("<style type=\"text/css\">\n").append("\tli{margin: 10px 0;}\n").append("</style>\n").append("</head>\n");
-        html.append("<body>\n").append("<h1>Directory listing for ").append(path).append("</h1>\n");
-        if (showHidden == 1) {
-            html.append("<a href=\"?showHidden=0\"><button>Show Hidden Files</button></a>&#10004;<p>"); // show
-        } else if (showHidden == 0) {
-            html.append("<a href=\"?showHidden=1\"><button>Show Hidden Files</button></a>&#10007;<p>"); // hidden
-        }
-        html.append("<form  method=\"POST\" enctype=\"multipart/form-data\">\n");
-//        html.append("<input type=\"text\" name=\"p1\" required=\"required\"> >>");
-        html.append("<input type=\"file\" name=\"file\" required=\"required\"> >>");
-        html.append("<button type=\"submit\">Upload</button>\n</form>\n");
-        html.append("<hr>\n");
-
-        if ("/".equals(path)) {
-            html.append("/");
-        } else {
-            String parentPath = file.getParent().replace(HttpServer.HOME, "") + "/";
-            html.append("<a href=\"").append(parentPath).append("\">").append("Parent Directory").append("</a>");
-        }
-        html.append("<ul>\n");
-
-        File[] files = FilesFilter.showHidden(file, showHidden);
-
-
-        FilesFilter.sort(files, FilesFilter.SortBy.NAME, 0);
-
-        for (File subfile : files) {
-            String displayName = subfile.getName();
-            String link = URLEncoder.encode(subfile.getName(), "UTF-8");
-
-            if (subfile.isDirectory()) {
-                displayName += "/";
-                link += "/";
-                String element = String.format("<a href=\"%s\"><strong>%s</strong></a>", link, displayName);
-                html.append("<li style=>").append(element).append("</li>\n");
-            } else if (subfile.isFile()) {
-                String element = String.format("<a href=\"%s\">%s</a>", link, displayName);
-                String download = String.format("<a href=\"%s\">%s</a>", link + "?download=1", "DL");
-                html.append("<li>").append(element).append("&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;&nbsp;").append(download).append("</li>\n");
-            } else {
-                // symbol link
-                displayName = displayName + "@";
-                String element = String.format("<a href=\"%s\">%s</a>", link, displayName);
-                html.append("<li>").append(element).append("</li>\n");
-            }
-
-        }
-        html.append("</ul>\n<hr>\n</body>\n</html>");
-
-        return String.valueOf(html);
+        return HTMLMaker.makeIndex(path, showHidden);
     }
 
 }

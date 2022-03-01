@@ -1,6 +1,8 @@
 package com.alpha.utils;
 
 
+import com.alpha.httpRequest.Request;
+
 import java.io.*;
 
 /**
@@ -34,7 +36,7 @@ public class HttpRequestParser {
             byte[] buf = new byte[2];
             int read = 0;
             int n;
-
+            
             while ((read = in.read(buf)) != -1) {
                 baos.write(buf, 0, read);
                 if (baos.toString().contains("\r\n\r")) {

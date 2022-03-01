@@ -94,9 +94,10 @@ public class Request {
             int separator = parameter.indexOf('=');
             if (separator > -1) {
                 queryParameters.put(parameter.substring(0, separator),
-                        parameter.substring(separator + 1));
+                        parameter.substring(separator + 1)
+                );
             } else {
-                queryParameters.put(parameter, null);
+                queryParameters.put(parameter, "");
             }
         }
     }
