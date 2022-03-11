@@ -102,6 +102,7 @@ public class Response {
         headers.put("Server", HttpServer.SERVER);
         headers.put("Accept-Ranges", "bytes");
         headers.put("Connection", "keep-alive");
+        headers.put("Keep-Alive", "timeout="+HttpServer.TIMEOUT);
 
         StringBuilder sb = new StringBuilder();
         sb.append(HttpServer.PROTOCOL_VERSION).append(" ").append(statusMessage).append("\r\n");

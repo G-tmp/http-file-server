@@ -10,6 +10,8 @@ public class HttpServer {
     public final static String PROTOCOL_VERSION = "HTTP/1.1";
     public final static String SERVER = "XD";
     public final static String HOME = System.getProperty("user.home");
+    public final static int TIMEOUT = 10;
+
     private int port;
     private ExecutorService pool = Executors.newFixedThreadPool(8);
     private static int DEFAULT_PORT = 8888;

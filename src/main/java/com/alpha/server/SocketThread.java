@@ -33,7 +33,7 @@ public class SocketThread implements Runnable {
         boolean done = false;
 
         try {
-            socket.setSoTimeout(10 * 1000);
+            socket.setSoTimeout(HttpServer.TIMEOUT * 1000);
 
             while (!done) {
                 Request request = new Request(in);
