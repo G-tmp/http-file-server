@@ -9,10 +9,11 @@ import java.util.Map;
  */
 public class SingleFile {
     private String boundary;
-    private String filename;
-    private long contentLen;
-    private long fileLen;
     private InputStream in;
+    private long contentLen;
+
+    private String filename;
+    private long fileLen;
 
 
     public SingleFile(InputStream in, Map<String, String> headers) throws IOException {
@@ -74,7 +75,7 @@ public class SingleFile {
     }
 
 
-    public long getFileLen(){
+    public long getFileLen() {
         return fileLen;
     }
 }

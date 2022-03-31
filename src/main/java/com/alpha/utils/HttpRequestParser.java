@@ -1,13 +1,11 @@
 package com.alpha.utils;
 
 
-import com.alpha.httpRequest.Request;
-
 import java.io.*;
 
 /**
  *    Http request header and body split by "\r\n\r\n"
- *    When upload file, data and parameter also split by "\r\n\r\n" in post request body
+ *    While upload file, data and parameters also split by "\r\n\r\n" in post request body
  *
  *
  *
@@ -21,7 +19,6 @@ import java.io.*;
  *
  *  [data]
  *  ------WebKitFormBoundarydGnETrh9DhBD8Hlf--
- *
  */
 public class HttpRequestParser {
 
@@ -29,7 +26,9 @@ public class HttpRequestParser {
     }
 
 
-
+    /**
+     *  return bytes array before double CRLF
+     */
     public static byte[] parse(InputStream in) throws IOException {
 
         try ( ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -39,9 +38,10 @@ public class HttpRequestParser {
             
             while ((read = in.read(buf)) != -1) {
                 baos.write(buf, 0, read);
+                // TODO   KMP algorithm detect
                 if (baos.toString().contains("\r\n\r")) {
                     n = buf[read - 1];
-                    while (n != 10) {   // 10 - ascii code of  LF or \n
+                    while (n != 10) {   // 10 - ascii code of  LF or '\n'
                         n = in.read();
                         baos.write(n);
                     }

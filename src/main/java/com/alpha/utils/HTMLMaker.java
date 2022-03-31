@@ -27,13 +27,13 @@ public class HTMLMaker {
         html.append("<style type=\"text/css\">\n").append("\tli{margin: 10px 0;}\n").append("</style>\n").append("</head>\n");
         html.append("<body>\n").append("<h1>Directory listing for ").append(path).append("</h1>\n");
         if (showHidden == 1) {
-            html.append("<a href=\"?showHidden=0\"><button>Show Hidden Files</button></a>&#10004;<p>"); // show
+            html.append("<a href=\"?showHidden=0\"><button>Show Hidden Files</button></a> on <p>"); // show
         } else if (showHidden == 0) {
-            html.append("<a href=\"?showHidden=1\"><button>Show Hidden Files</button></a>&#10007;<p>"); // hidden
+            html.append("<a href=\"?showHidden=1\"><button>Show Hidden Files</button></a> off <p>"); // hidden
         }
 
         // Upload form
-        html.append("<form  method=\"POST\" enctype=\"multipart/form-data\">\n");
+        html.append("<form  method=\"post\" enctype=\"multipart/form-data\">\n");
 //        html.append("<input type=\"text\" name=\"p1\" required=\"required\"> >>");
         html.append("<input type=\"file\" name=\"file\" required=\"required\"> >>");
         html.append("<button type=\"submit\">Upload</button>\n</form>\n");

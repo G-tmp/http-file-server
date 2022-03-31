@@ -33,7 +33,7 @@ public class Response {
     }
 
 
-    public void setContentLength(long length){
+    public void setContentLength(long length) {
         this.headers.put("Content-Length", String.valueOf(length));
     }
 
@@ -72,7 +72,7 @@ public class Response {
             return type;
         } catch (IllegalArgumentException e) {
             // Http response not add "Content-Type" header
-            // browser will automatic check type
+            // Browser will automatic check type
             // So do nothing
             return null;
         }
@@ -80,29 +80,20 @@ public class Response {
 
 
     public void send() throws IOException {
-        if(out == null){
-            throw new IOException("socket output stream closed");
-        }
-
         this.sendHeader();
-
-        if (body != null) {
-            out.write(body);
-        }
-
-        out.flush();
+        this.sendBody(body);
     }
 
 
     public void sendHeader() throws IOException {
-        if(out == null){
+        if (out == null) {
             throw new IOException("socket output stream closed");
         }
 
         headers.put("Server", HttpServer.SERVER);
         headers.put("Accept-Ranges", "bytes");
         headers.put("Connection", "keep-alive");
-        headers.put("Keep-Alive", "timeout="+HttpServer.TIMEOUT);
+        headers.put("Keep-Alive", "timeout=" + HttpServer.TIMEOUT);
 
         StringBuilder sb = new StringBuilder();
         sb.append(HttpServer.PROTOCOL_VERSION).append(" ").append(statusMessage).append("\r\n");
@@ -128,7 +119,7 @@ public class Response {
 
 
     public void sendBody(byte[] b, int offset, int len) throws IOException {
-        if(out == null){
+        if (out == null) {
             throw new IOException("socket output stream closed");
         }
 
@@ -138,7 +129,7 @@ public class Response {
 
 
     public void redirect(String path) throws IOException {
-        if(out == null){
+        if (out == null) {
             throw new IOException("socket output stream closed");
         }
 

@@ -30,9 +30,9 @@ public class Request {
 
 
     public boolean parse() throws IOException {
-        byte[] data = HttpRequestParser.parse(in);
+        byte[] header = HttpRequestParser.parse(in);
 
-        String requestHeaders = new String(data, "utf-8");
+        String requestHeaders = new String(header, "UTF-8");
         //System.out.println(requestHeaders);
         StringTokenizer reqTok = new StringTokenizer(requestHeaders, "\r\n");
 
@@ -49,7 +49,7 @@ public class Request {
             }
         }
         method = components[0];
-        path = fullPath = URLDecoder.decode(components[1], "utf-8");
+        path = fullPath = URLDecoder.decode(components[1], "UTF-8");
         version = components[2];
 
         // parse request headers
@@ -112,6 +112,7 @@ public class Request {
     }
 
 
+    // while http method is post
     public SingleFile parsePost() throws IOException {
         return new SingleFile(in, headers);
     }
