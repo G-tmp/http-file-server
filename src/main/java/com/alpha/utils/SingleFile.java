@@ -1,7 +1,8 @@
 package com.alpha.utils;
 
+import com.alpha.server.HttpServer;
+
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
@@ -33,7 +34,7 @@ public class SingleFile {
 
     private void parse() throws IOException {
         byte[] parameterPair = HttpRequestParser.parse(in);
-        String s = new String(parameterPair, StandardCharsets.UTF_8);
+        String s = new String(parameterPair, "UTF-8");
 
         String split = s.split("\r\n")[1];
         this.filename = split.substring(split.indexOf("filename=\"") + 10, split.lastIndexOf("\""));
@@ -47,7 +48,7 @@ public class SingleFile {
 
         long read = 0;
         int c;
-        byte[] b = new byte[1024 * 8];
+        byte[] b = new byte[HttpServer.RESPONSE_SIZE];
         while (read < fileLen) {
             c = in.read(b);
             if (c == -1)

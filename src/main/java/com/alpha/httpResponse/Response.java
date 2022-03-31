@@ -3,6 +3,8 @@ package com.alpha.httpResponse;
 import com.alpha.httpRequest.Cookie;
 import com.alpha.server.HttpServer;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
@@ -14,12 +16,14 @@ public class Response {
     private byte[] body;
     private Map<String, String> cookies;
     private OutputStream out;
+    private boolean chunked;
 
 
     public Response(OutputStream out) {
         headers = new HashMap<>();
         cookies = new HashMap<>();
         this.out = out;
+        chunked = false;
     }
 
 
@@ -55,6 +59,10 @@ public class Response {
 
     public void addBody(byte[] body) {
         this.body = body;
+    }
+
+    public void enableChunked(){
+        this.chunked = true;
     }
 
 
@@ -94,6 +102,10 @@ public class Response {
         headers.put("Accept-Ranges", "bytes");
         headers.put("Connection", "keep-alive");
         headers.put("Keep-Alive", "timeout=" + HttpServer.TIMEOUT);
+        if (chunked){
+            headers.put("Transfer-Encoding", "chunked");
+            headers.remove("Content-Length");
+        }
 
         StringBuilder sb = new StringBuilder();
         sb.append(HttpServer.PROTOCOL_VERSION).append(" ").append(statusMessage).append("\r\n");
@@ -124,6 +136,32 @@ public class Response {
         }
 
         out.write(b, offset, len);
+        out.flush();
+    }
+
+
+    public void sendChunked(byte[] b, int offset, int len) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        baos.write(Integer.toHexString(len - offset).getBytes());
+        baos.write("\r\n".getBytes());
+        baos.write(b, offset, len);
+        baos.write("\r\n".getBytes());
+
+        out.write(baos.toByteArray());
+        out.flush();
+    }
+
+
+    // to send html
+    public void sendChunkedFin(byte[] b) throws IOException {
+        sendChunked(b, 0, b.length);
+        sendChunkedTrailer();
+    }
+
+
+    public void sendChunkedTrailer() throws IOException {
+        out.write("0\r\n\r\n".getBytes());
         out.flush();
     }
 

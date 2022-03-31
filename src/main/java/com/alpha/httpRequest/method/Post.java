@@ -29,8 +29,8 @@ public class Post implements Method {
         String body = "<h1>" + singleFile.getFilename() + "</h1>";
         response.setStatusCode(Status._200);
         response.setContentType(ContentType.HTML);
-        response.addBody(body);
-        response.setContentLength(body.getBytes().length);
-        response.send();
+        response.sendHeader();
+//        response.setContentLength(body.getBytes().length);
+        response.sendChunkedFin(body.getBytes());
     }
 }

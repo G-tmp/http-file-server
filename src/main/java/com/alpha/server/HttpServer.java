@@ -11,6 +11,7 @@ public class HttpServer {
     public final static String SERVER = "XD";
     public final static String HOME = System.getProperty("user.home");
     public final static int TIMEOUT = 10;
+    public final static int RESPONSE_SIZE = 8 * 1024;
 
     private int port;
     private ExecutorService pool = Executors.newFixedThreadPool(8);

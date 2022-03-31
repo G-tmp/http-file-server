@@ -42,6 +42,7 @@ public class Get implements Method {
                 response.redirect(request.getPath() + "/");
                 break;
             case _206:
+                // for seeking audio and video
                 String range = request.getHeader("Range");
                 File file = new File(HttpServer.HOME, request.getPath());
                 long fsize = file.length();
@@ -50,7 +51,7 @@ public class Get implements Method {
                 if (range != null && range.contains("bytes")) {
                     long start;
                     long end;
-                    long n = 1000 * 1000 * 3;
+                    long sendSize = 1000 * 1000 * 5;
 
                     try {
                         start = Long.parseLong(range.substring(range.indexOf("=") + 1, range.indexOf("-")));
@@ -73,8 +74,8 @@ public class Get implements Method {
                     }
 
                     if (end == 0) {
-                        if (fsize > start + n) {
-                            end = start + n - 1;
+                        if (fsize > start + sendSize) {
+                            end = start + sendSize - 1;
                         } else {
                             end = fsize - 1;
                         }
@@ -89,7 +90,7 @@ public class Get implements Method {
                     response.setContentLength(len);
                     response.sendHeader();
 
-                    byte[] b = new byte[1024 * 8];
+                    byte[] b = new byte[HttpServer.RESPONSE_SIZE];
                     int c = 0;
                     long read = 0;
                     BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
@@ -112,7 +113,7 @@ public class Get implements Method {
                 // html
                 if (localFile.isDirectory()) {
 
-                    // check parameter showHidden
+                    // check parameter showHidden, then redirect
                     String showHidden = request.getParameter("showHidden");
                     if (showHidden != null) {
                         try {
@@ -164,12 +165,13 @@ public class Get implements Method {
 
 
                     response.setStatusCode(Status._200);
+                    response.enableChunked();
                     response.setContentType(ContentType.HTML);
-                    response.addBody(html);
-                    response.setContentLength(html.getBytes().length);
-                    response.send();
+//                    response.setContentLength(html.getBytes().length);
+                    response.sendHeader();
+                    response.sendChunkedFin(html.getBytes());
 
-                } else {        // file
+                } else {   // file
 
                     // check parameter download
                     String download = request.getParameter("download");
@@ -178,17 +180,20 @@ public class Get implements Method {
                     }
 
                     response.setStatusCode(Status._200);
-
+                    response.enableChunked();
+//                    response.setContentLength(localFile.length());
                     response.guessContentType(request.getPath());
-                    response.setContentLength(localFile.length());
                     response.sendHeader();
 
-                    byte[] buffer = new byte[1024 * 8];
+                    byte[] buffer = new byte[HttpServer.RESPONSE_SIZE];
                     int count = 0;
                     BufferedInputStream  bis = new BufferedInputStream(new FileInputStream(localFile));
+
                     while ((count = bis.read(buffer)) != -1) {
-                        response.sendBody(buffer, 0, count);
+//                        response.sendBody(buffer, 0, count);
+                        response.sendChunked(buffer, 0, count);
                     }
+                    response.sendChunkedTrailer();
 
                     bis.close();
                 }
