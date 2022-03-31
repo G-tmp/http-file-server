@@ -181,7 +181,6 @@ public class Get implements Method {
 
                     response.setStatusCode(Status._200);
                     response.enableChunked();
-//                    response.setContentLength(localFile.length());
                     response.guessContentType(request.getPath());
                     response.sendHeader();
 
@@ -190,7 +189,6 @@ public class Get implements Method {
                     BufferedInputStream  bis = new BufferedInputStream(new FileInputStream(localFile));
 
                     while ((count = bis.read(buffer)) != -1) {
-//                        response.sendBody(buffer, 0, count);
                         response.sendChunked(buffer, 0, count);
                     }
                     response.sendChunkedTrailer();
