@@ -3,6 +3,8 @@ package com.alpha.utils;
 import com.alpha.server.HttpServer;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -43,7 +45,9 @@ public class SingleFile {
 
 
     public File save(String dir) throws IOException {
-        File file = new File(dir, this.filename);
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+        File file = new File(dir, dateFormat.format(date) + "_" + this.filename);
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
 
         long read = 0;

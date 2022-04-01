@@ -26,7 +26,7 @@ public class Post implements Method {
 
         File path = singleFile.save(new File(HttpServer.HOME, request.getPath()).getPath());
 
-        String body = "<h1>" + singleFile.getFilename() + "</h1>";
+        String body = "<h1>" + path.getName() + "</h1>";
         response.setStatusCode(Status._200);
         response.enableChunked();
         response.setContentType(ContentType.HTML);

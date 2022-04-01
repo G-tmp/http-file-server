@@ -76,7 +76,7 @@ HTTP\r\n
 
 * while request HTTP 206, flac and webm display incorrectly on Firefox
 
-* IOS Safari sucks, ignore ```Content-Disposition``` header, cause can not download file directly
+* IOS Safari sucks, ignore ```Content-Disposition``` header cause can not download file directly, and upload compressed image rather than original
 
 
 ## TODO

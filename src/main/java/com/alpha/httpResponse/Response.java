@@ -63,6 +63,7 @@ public class Response {
 
     public void enableChunked(){
         this.chunked = true;
+        headers.put("Transfer-Encoding", "chunked");
     }
 
 
@@ -106,7 +107,6 @@ public class Response {
         headers.put("Connection", "keep-alive");
         headers.put("Keep-Alive", "timeout=" + HttpServer.TIMEOUT);
         if (chunked){
-            headers.put("Transfer-Encoding", "chunked");
             headers.remove("Content-Length");
         }
 
