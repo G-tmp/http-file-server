@@ -89,7 +89,10 @@ public class Response {
 
     public void send() throws IOException {
         this.sendHeader();
-        this.sendBody(body);
+        if (chunked)
+            sendChunkedFin(body);
+        else
+            this.sendBody(body);
     }
 
 

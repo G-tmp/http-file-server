@@ -1,72 +1,103 @@
-# http-file-server
+# HTTP file server
 
-A simple multi-threading http server supports displaying local files
+A simple multi-threading HTTP server supports displaying local files
+
+* pure java
+
+* HTTP/1.1
+
+* GET and POST only
 
 
-## development environment
 
-OpenJDK11 Ubuntu18
+## Launch
+
+```java -jar HttpServer.jar 8888```
 
 
-## Features
+
+
+## Implementation
+
+### chunked transfer encoding 
+
+* response header ```Transfer-Encoding: chunked```
+
+* response body 
+```
+4\r\n
+HTTP\r\n
+0\r\n
+\r\n
+```
+
 
 ### redirect
 
-contains two requests and responses, be used to refresh page and address bar here
+* response code 302 and contain header ```Location: url```
 
-response code 302 and contain header ```Location: url```
-
-pay attention to **Redirect loops**
+* pay attention to Redirect loops
 
 
 ### connection keep alive
 
-add response header ```Connection: keep-alive```
+* response header ```Connection: keep-alive```
 
-socket set timeout, request and response reuse socket connection
+* set socket timeout, reuse socket connection
 
 
-### parse http request
+### parse HTTP request
 
-read from byte stream rather than character stream, request headers and body divided by  ```\r\n\r\n``` 4 ascii characters, read 2 bytes each time until detect ```\r\n\r``` 
+* read from byte stream, request headers and body divided by  ```\r\n\r\n``` 4 ascii characters, read 2 bytes each time until detect ```\r\n\r``` 
 
-if it is a post request, read header ```Content-Length``` and read corresponding number of bytes, then parse body
+* if it is a post request, read header ```Content-Length``` and read corresponding number of bytes in body, then parse body
 
 
 ### playback media
 
-browser request a media file, response code 200 and add header ```Accept-Ranges: bytes```;
-second request contains ```Range: bytes=0-```, response code 206 and header```Content-Range: bytes start-end/length``` 
+* browser request a media file, response code 200 and header ```Accept-Ranges: bytes```
+
+* then browser request headers contain ```Range: bytes=start-end```, response code 206 and header```Content-Range: bytes start-end/length``` 
 
 
 ### download file
 
-add http response header ```Content-Disposition: attachment; filename=?```
+* HTTP response header ```Content-Disposition: attachment; filename=?```
 
 
 ### cookie
 
-add http response header ```Set-Cookie: key1=value1; key2=value2; ...```
+* HTTP response header ```Set-Cookie: key1=value1; key2=value2; ...```
 
+
+## About client
+
+* working well on Chrome
+
+* while request HTTP 206, flac and webm display incorrectly on Firefox
+
+* IOS Safari sucks, ignore ```Content-Disposition``` header, cause can not download file directly
 
 
 ## TODO
 
-* response correct Mime‑Type, by file signature maybe
+* test on Windows 
 
-* post request only supports upload one file, it is tedious to parse post body
+* response correct Mime‑Type, maybe by file signature maybe
 
 * sort files by name, size  or last modified time
 
-* chunked transfer encoding
-
-* http pipelining
-
 * sometimes the socket connection is disconnected for unknown reasons
 
+* refactor and use design patterns
+
+* HTTP pipelining
+
+* HTTP/2
 
 
-## Reference
+
+## References
 
 * [A Simple HTTP Server in Java](https://commandlinefanatic.com/cgi-bin/showarticle.cgi?article=art076)
 
