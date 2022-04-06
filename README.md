@@ -1,8 +1,8 @@
 # HTTP file server
 
-A simple multi-threading HTTP server supports displaying local files
+A simple HTTP server supports display local files
 
-* pure java
+* multi-threading
 
 * HTTP/1.1
 
@@ -10,9 +10,15 @@ A simple multi-threading HTTP server supports displaying local files
 
 
 
+
+
+
 ## Launch
 
 ```java -jar HttpServer.jar 8888```
+
+
+
 
 
 
@@ -70,13 +76,17 @@ HTTP\r\n
 * HTTP response header ```Set-Cookie: key1=value1; key2=value2; ...```
 
 
+
+
+
 ## About client
 
-* working well on Chrome
+* working well on Chrome and Firefox, but Firefox is more stricter
 
-* while request HTTP 206, flac and webm display incorrectly on Firefox
+* IOS Safari sucks, does not support webm, and ignore ```Content-Disposition``` header cause can not download file directly, and upload compressed image rather than original
 
-* IOS Safari sucks, ignore ```Content-Disposition``` header cause can not download file directly, and upload compressed image rather than original
+
+
 
 
 ## TODO
@@ -94,6 +104,8 @@ HTTP\r\n
 * HTTP pipelining
 
 * HTTP/2
+
+
 
 
 
