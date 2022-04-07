@@ -79,12 +79,12 @@ public class FilesFilter {
     }
 
 
-    public static File[] showHidden(File dir, int showHidden) {
+    public static File[] showHidden(File dir, boolean showHidden) {
         File[] files = null;
 
-        if (showHidden == 1) {
+        if (showHidden) {
             files = dir.listFiles();
-        } else if (showHidden == 0) {
+        } else  {
             files = dir.listFiles((filter) -> {
                 return !filter.isHidden();
             });

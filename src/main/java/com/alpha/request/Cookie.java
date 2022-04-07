@@ -1,13 +1,10 @@
-package com.alpha.httpRequest;
+package com.alpha.request;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class Cookie {
     private String name;
     private String value;
-    private Date expires;
-    private Integer maxAge;
+    private Integer maxAge = -1;
     private String domain;
     private String path;
     private boolean secure;
@@ -23,22 +20,17 @@ public class Cookie {
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
-        sb.append(name + "=" + value);
-
-        if (expires != null) {
-            SimpleDateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss");
-            sb.append("; Expires=" + fmt.format(expires) + " GMT");
-        }
+        sb.append(name).append("=").append(value);
 
         if (maxAge != null) {
-            sb.append("; Max-Age=" + maxAge);
+            sb.append("; Max-Age=").append(maxAge);
         }
         if (domain != null) {
-            sb.append("; Domain=" + domain);
+            sb.append("; Domain=").append(domain);
         }
 
         if (path != null) {
-            sb.append("; Path=" + path);
+            sb.append("; Path=").append(path);
         }
 
         if (secure) {
@@ -50,7 +42,7 @@ public class Cookie {
         }
 
         if (sameSite != null) {
-            sb.append("; SameSite=" + sameSite);
+            sb.append("; SameSite=").append(sameSite);
         }
 
         return String.valueOf(sb);
@@ -66,15 +58,6 @@ public class Cookie {
 
     public Cookie setValue(String value) {
         this.value = value;
-        return this;
-    }
-
-    public Date getExpires() {
-        return expires;
-    }
-
-    public Cookie setExpires(Date expires) {
-        this.expires = expires;
         return this;
     }
 

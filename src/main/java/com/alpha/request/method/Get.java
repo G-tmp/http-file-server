@@ -1,10 +1,10 @@
-package com.alpha.httpRequest.method;
+package com.alpha.request.method;
 
-import com.alpha.httpRequest.Cookie;
-import com.alpha.httpRequest.Request;
-import com.alpha.httpResponse.ContentType;
-import com.alpha.httpResponse.Response;
-import com.alpha.httpResponse.Status;
+import com.alpha.request.Cookie;
+import com.alpha.request.HttpRequest;
+import com.alpha.response.ContentType;
+import com.alpha.response.HttpResponse;
+import com.alpha.response.Status;
 import com.alpha.server.HttpServer;
 import com.alpha.utils.HTMLMaker;
 
@@ -12,11 +12,11 @@ import java.io.*;
 
 
 public class Get implements Method {
-    private Request request;
-    private Response response;
+    private HttpRequest request;
+    private HttpResponse response;
 
 
-    public Get(Request request, Response response) {
+    public Get(HttpRequest request, HttpResponse response) {
         this.request = request;
         this.response = response;
     }
@@ -39,6 +39,7 @@ public class Get implements Method {
                 break;
             case _301:
             case _302:
+            case _307:
                 response.redirect(request.getPath() + "/");
                 break;
             case _206:
@@ -90,7 +91,7 @@ public class Get implements Method {
                     response.setContentLength(len);
                     response.sendHeader();
 
-                    byte[] b = new byte[HttpServer.RESPONSE_SIZE];
+                    byte[] b = new byte[HttpServer.BUFFER_SIZE];
                     int c = 0;
                     long read = 0;
                     BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
@@ -116,27 +117,14 @@ public class Get implements Method {
                     // check parameter showHidden, then redirect
                     String showHidden = request.getParameter("showHidden");
                     if (showHidden != null) {
-                        try {
-                            int i = Integer.parseInt(showHidden);
-
-                            if (i == 0) {
-                                Cookie cookie = new Cookie("showHidden", String.valueOf(0));
-                                cookie.setMaxAge(60 * 60);
-                                cookie.setPath("/");
-                                response.addCookie(cookie);
-                                response.redirect(request.getPath());
-                            } else {
-                                Cookie cookie = new Cookie("showHidden", String.valueOf(1));
-                                cookie.setMaxAge(60 * 60);
-                                cookie.setPath("/");
-                                response.addCookie(cookie);
-                                response.redirect(request.getPath());
-                            }
-
-                        } catch (NumberFormatException e) {
-                            // Parameter showHidden is null or not a number
-                            // Do not set cookie
-                            Cookie cookie = new Cookie("showHidden", String.valueOf(0));
+                        if (showHidden.equals("true")) {
+                            Cookie cookie = new Cookie("showHidden", "true");
+                            cookie.setMaxAge(60 * 60);
+                            cookie.setPath("/");
+                            response.addCookie(cookie);
+                            response.redirect(request.getPath());
+                        } else {
+                            Cookie cookie = new Cookie("showHidden", "false");
                             cookie.setMaxAge(60 * 60);
                             cookie.setPath("/");
                             response.addCookie(cookie);
@@ -145,38 +133,33 @@ public class Get implements Method {
                     }
 
 
-                    // check cookie
-                    String html = null;
-                    String cookie = request.getCookie("showHidden");
-                    if (cookie != null) {
-                        try {
-                            int i = Integer.parseInt(cookie);
-                            if (i == 0) {
-                                html = mappingLocal(request.getPath(), 0);
-                            } else {
-                                html = mappingLocal(request.getPath(), 1);
-                            }
-                        } catch (NumberFormatException e) {
-                            html = mappingLocal(request.getPath(), 0);
-                        }
-                    } else {
-                        html = mappingLocal(request.getPath(), 0);
-                    }
+                    String html = mappingLocal(request.getPath());
 
+                    // check cookie
+                    for (Cookie cookie : request.getCookies()) {
+                        if (cookie.getName().equals("showHidden")) {
+                            String show = cookie.getValue();
+
+                            if (show.equals("true")) {
+                                html = mappingLocal(request.getPath(), true);
+                            } else {
+                                html = mappingLocal(request.getPath(), false);
+                            }
+                        }
+                    }
 
                     response.setStatusCode(Status._200);
                     response.enableChunked();
                     response.setContentType(ContentType.HTML);
-//                    response.setContentLength(html.getBytes().length);
                     response.sendHeader();
-                    response.sendChunkedFin(html.getBytes());
 
+                    response.sendChunkedFin(html.getBytes());
                 } else {   // file
 
                     // check parameter download
                     String download = request.getParameter("download");
-                    if (download != null){
-                        response.addHeader("Content-Disposition","attachment;");
+                    if (download != null) {
+                        response.addHeader("Content-Disposition", "attachment;");
                     }
 
                     response.setStatusCode(Status._200);
@@ -184,9 +167,9 @@ public class Get implements Method {
                     response.guessContentType(request.getPath());
                     response.sendHeader();
 
-                    byte[] buffer = new byte[HttpServer.RESPONSE_SIZE];
+                    byte[] buffer = new byte[HttpServer.BUFFER_SIZE];
                     int count = 0;
-                    BufferedInputStream  bis = new BufferedInputStream(new FileInputStream(localFile));
+                    BufferedInputStream bis = new BufferedInputStream(new FileInputStream(localFile));
 
                     while ((count = bis.read(buffer)) != -1) {
                         response.sendChunked(buffer, 0, count);
@@ -203,11 +186,11 @@ public class Get implements Method {
 
 
     private static String mappingLocal(String path) throws UnsupportedEncodingException {
-        return mappingLocal(path, 0);
+        return mappingLocal(path, false);
     }
 
 
-    private static String mappingLocal(String path, int showHidden) throws UnsupportedEncodingException {
+    private static String mappingLocal(String path, boolean showHidden) throws UnsupportedEncodingException {
         return HTMLMaker.makeIndex(path, showHidden);
     }
 

@@ -13,7 +13,7 @@ public class HTMLMaker {
     private  HTMLMaker(){}
 
 
-    public static String makeIndex(String path, int showHidden) throws UnsupportedEncodingException {
+    public static String makeIndex(String path, boolean showHidden) throws UnsupportedEncodingException {
         File dir = new File(HttpServer.HOME, path);
         if (!dir.isDirectory())
             return null;
@@ -26,10 +26,10 @@ public class HTMLMaker {
         html.append("<title>").append(path).append("</title>\n");
         html.append("<style type=\"text/css\">\n").append("\tli{margin: 10px 0;}\n").append("</style>\n").append("</head>\n");
         html.append("<body>\n").append("<h1>Directory listing for ").append(path).append("</h1>\n");
-        if (showHidden == 1) {
-            html.append("<a href=\"?showHidden=0\"><button>Show Hidden Files</button></a> on <p>"); // show
-        } else if (showHidden == 0) {
-            html.append("<a href=\"?showHidden=1\"><button>Show Hidden Files</button></a> off <p>"); // hidden
+        if (showHidden) {
+            html.append("<a href=\"?showHidden=false\"><button>Show Hidden Files</button></a> on <p>"); // show
+        } else {
+            html.append("<a href=\"?showHidden=true\"><button>Show Hidden Files</button></a> off <p>"); // hidden
         }
 
         // Upload form

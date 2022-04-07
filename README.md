@@ -101,6 +101,8 @@ HTTP\r\n
 
 * refactor and use design patterns
 
+* I/O Multiplexing
+
 * HTTP pipelining
 
 * HTTP/2

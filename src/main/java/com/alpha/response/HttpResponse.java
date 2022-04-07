@@ -1,65 +1,31 @@
-package com.alpha.httpResponse;
+package com.alpha.response;
 
-import com.alpha.httpRequest.Cookie;
+import com.alpha.request.Cookie;
 import com.alpha.server.HttpServer;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class Response {
+public class HttpResponse {
     private String statusMessage;
     private Map<String, String> headers;
     private byte[] body;
-    private Map<String, String> cookies;
+    private List<Cookie> cookies;
     private OutputStream out;
-    private boolean chunked;
+    private boolean chunked = false;
 
 
-    public Response(OutputStream out) {
+    public HttpResponse (OutputStream out) {
         headers = new HashMap<>();
-        cookies = new HashMap<>();
+        cookies = new ArrayList<>();
         this.out = out;
-        chunked = false;
     }
 
-
-    public void setStatusCode(Status status) {
-        this.statusMessage = status.toString();
-    }
-
-
-    public void setContentType(ContentType contentType) {
-        this.headers.put("Content-Type", contentType.toString());
-    }
-
-
-    public void setContentLength(long length) {
-        this.headers.put("Content-Length", String.valueOf(length));
-    }
-
-
-    public void addCookie(Cookie cookie) {
-        cookies.put(cookie.getName(), cookie.toString());
-    }
-
-
-    public void addHeader(String headerName, String headerValue) {
-        this.headers.put(headerName, headerValue);
-    }
-
-
-    public void addBody(String body) {
-        addBody(body.getBytes());
-    }
-
-
-    public void addBody(byte[] body) {
-        this.body = body;
-    }
 
     public void enableChunked(){
         this.chunked = true;
@@ -117,7 +83,7 @@ public class Response {
             sb.append(headerName).append(": ").append(headers.get(headerName)).append("\r\n");
         }
 
-        for (String cookie : cookies.values()) {
+        for (Cookie cookie:cookies){
             sb.append("Set-Cookie: ").append(cookie).append("\r\n");
         }
 
@@ -156,7 +122,7 @@ public class Response {
     }
 
 
-    // to send html
+    // to sending html
     public void sendChunkedFin(byte[] b) throws IOException {
         sendChunked(b, 0, b.length);
         sendChunkedTrailer();
@@ -180,13 +146,13 @@ public class Response {
         headers.put("Connection", "close");
 
         StringBuilder sb = new StringBuilder();
-        sb.append(HttpServer.PROTOCOL_VERSION).append(" ").append(Status._302.toString()).append("\r\n");
+        sb.append(HttpServer.PROTOCOL_VERSION).append(" ").append(Status._307.toString()).append("\r\n");
 
         for (String headerName : headers.keySet()) {
             sb.append(headerName).append(": ").append(headers.get(headerName)).append("\r\n");
         }
 
-        for (String cookie : cookies.values()) {
+        for (Cookie cookie:cookies){
             sb.append("Set-Cookie: ").append(cookie).append("\r\n");
         }
 
@@ -200,5 +166,40 @@ public class Response {
     @Override
     public String toString() {
         return new String(body);
+    }
+
+
+    public void setStatusCode(Status status) {
+        this.statusMessage = status.toString();
+    }
+
+
+    public void setContentType(ContentType contentType) {
+        this.headers.put("Content-Type", contentType.toString());
+    }
+
+
+    public void setContentLength(long length) {
+        this.headers.put("Content-Length", String.valueOf(length));
+    }
+
+
+    public void addCookie(Cookie cookie) {
+        cookies.add(cookie);
+    }
+
+
+    public void addHeader(String headerName, String headerValue) {
+        this.headers.put(headerName, headerValue);
+    }
+
+
+    public void addBody(String body) {
+        addBody(body.getBytes());
+    }
+
+
+    public void addBody(byte[] body) {
+        this.body = body;
     }
 }

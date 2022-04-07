@@ -11,11 +11,11 @@ public class HttpServer {
     public final static String SERVER = "XD";
     public final static String HOME = System.getProperty("user.home");
     public final static int TIMEOUT = 10;
-    public final static int RESPONSE_SIZE = 8 * 1024;
+    public final static int BUFFER_SIZE = 8 * 1024;
+    private final static int DEFAULT_PORT = 8888;
 
     private int port;
     private ExecutorService pool = Executors.newFixedThreadPool(8);
-    private static int DEFAULT_PORT = 8888;
 //    private Map<String, Map<String, Handler>> handlers = new HashMap<String, Map<String, Handler>>();
 
 

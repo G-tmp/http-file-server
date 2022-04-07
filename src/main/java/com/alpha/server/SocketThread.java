@@ -1,11 +1,11 @@
 package com.alpha.server;
 
-import com.alpha.httpRequest.Request;
-import com.alpha.httpRequest.method.Get;
-import com.alpha.httpRequest.method.Method;
-import com.alpha.httpRequest.method.Post;
-import com.alpha.httpResponse.Response;
-import com.alpha.httpResponse.Status;
+import com.alpha.request.HttpRequest;
+import com.alpha.request.method.Get;
+import com.alpha.request.method.Method;
+import com.alpha.request.method.Post;
+import com.alpha.response.HttpResponse;
+import com.alpha.response.Status;
 
 
 import java.io.*;
@@ -14,11 +14,11 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 
-
 public class SocketThread implements Runnable {
     private Socket socket;
     private OutputStream out;
     private InputStream in;
+
 
     public SocketThread(Socket socket) throws IOException {
         this.socket = socket;
@@ -36,8 +36,8 @@ public class SocketThread implements Runnable {
             socket.setSoTimeout(HttpServer.TIMEOUT * 1000);
 
             while (!done) {
-                Request request = new Request(in);
-                Response response = new Response(out);
+                HttpRequest request = new HttpRequest(in);
+                HttpResponse response = new HttpResponse(out);
 
                 if (!request.parse()) {
                     response.setStatusCode(Status._500);
@@ -52,7 +52,7 @@ public class SocketThread implements Runnable {
                 } else if ("POST".equals(request.getMethod())) {
                     method = new Post(request,response);
                 }else {
-                    break;
+                    throw new RuntimeException("Unsupported HTTP method");
                 }
 
                 method.execute();

@@ -1,4 +1,4 @@
-package com.alpha.httpRequest;
+package com.alpha.request;
 
 
 import com.alpha.utils.HttpRequestParser;
@@ -6,25 +6,24 @@ import com.alpha.utils.SingleFile;
 
 import java.io.*;
 import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
-public class Request {
+public class HttpRequest {
     private String method;
     private String path;    // do not contain query parameters
     private String fullPath;     // maybe contain query parameters
     private String version;
     private Map<String, String> headers;    // store header name and value
     private Map<String, String> queryParameters;
-    private Map<String, String> cookies;
+    private List<Cookie> cookies;
     private InputStream in;
 
 
-    public Request(InputStream in) {
+    public HttpRequest (InputStream in) {
         this.headers = new HashMap<>();
         this.queryParameters = new HashMap<>();
-        this.cookies = new HashMap<>();
+        this.cookies = new ArrayList<>();
         this.in = new BufferedInputStream(in);
     }
 
@@ -32,7 +31,7 @@ public class Request {
     public boolean parse() throws IOException {
         byte[] header = HttpRequestParser.parse(in);
 
-        String requestHeaders = new String(header, "UTF-8");
+        String requestHeaders = new String(header, StandardCharsets.UTF_8);
         //System.out.println(requestHeaders);
         StringTokenizer reqTok = new StringTokenizer(requestHeaders, "\r\n");
 
@@ -49,7 +48,7 @@ public class Request {
             }
         }
         method = components[0];
-        path = fullPath = URLDecoder.decode(components[1], "UTF-8");
+        path = fullPath = URLDecoder.decode(components[1], StandardCharsets.UTF_8);
         version = components[2];
 
         // parse request headers
@@ -107,7 +106,8 @@ public class Request {
         String[] cookiePairs = cookieString.split("; ");
         for (String s : cookiePairs) {
             int equal = s.indexOf("=");
-            cookies.put(s.substring(0, equal), s.substring(equal + 1));
+            Cookie cookie = new Cookie(s.substring(0, equal), s.substring(equal + 1));
+            cookies.add(cookie);
         }
     }
 
@@ -118,12 +118,7 @@ public class Request {
     }
 
 
-    public String getCookie(String key) {
-        return cookies.get(key);
-    }
-
-
-    public Map<String, String> getCookies() {
+    public List<Cookie> getCookies() {
         return cookies;
     }
 

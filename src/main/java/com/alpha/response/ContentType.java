@@ -1,4 +1,4 @@
-package com.alpha.httpResponse;
+package com.alpha.response;
 
 
 /**

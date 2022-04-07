@@ -1,6 +1,6 @@
-package com.alpha.httpResponse;
+package com.alpha.response;
 
-import com.alpha.httpRequest.Request;
+import com.alpha.request.HttpRequest;
 import com.alpha.server.HttpServer;
 
 import java.io.File;
@@ -60,8 +60,9 @@ public enum  Status {
     }
 
 
-    public static Status getStatusCode(Request request) {
+    public static Status getStatusCode(HttpRequest request) {
         String path = request.getPath();
+
         File file = new File(HttpServer.HOME, path);
     //    System.out.println(file);
 
@@ -80,7 +81,7 @@ public enum  Status {
 
         if (file.isDirectory()) {
             if (!path.endsWith("/")) {
-                return Status._302;
+                return Status._307;
             } else {
                 return Status._200;
             }

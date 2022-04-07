@@ -1,21 +1,21 @@
-package com.alpha.httpRequest.method;
+package com.alpha.request.method;
 
+import com.alpha.response.HttpResponse;
 import com.alpha.utils.SingleFile;
-import com.alpha.httpRequest.Request;
-import com.alpha.httpResponse.ContentType;
-import com.alpha.httpResponse.Response;
-import com.alpha.httpResponse.Status;
+import com.alpha.request.HttpRequest;
+import com.alpha.response.ContentType;
+import com.alpha.response.Status;
 import com.alpha.server.HttpServer;
 
 import java.io.File;
 import java.io.IOException;
 
 public class Post implements Method {
-    private Request request;
-    private Response response;
+    private HttpRequest request;
+    private HttpResponse response;
 
 
-    public Post(Request request, Response response){
+    public Post(HttpRequest request, HttpResponse response){
         this.request = request;
         this.response = response;
     }
