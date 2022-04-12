@@ -20,16 +20,10 @@ public class HttpResponse {
     private boolean chunked = false;
 
 
-    public HttpResponse (OutputStream out) {
+    public HttpResponse(OutputStream out) {
         headers = new HashMap<>();
         cookies = new ArrayList<>();
         this.out = out;
-    }
-
-
-    public void enableChunked(){
-        this.chunked = true;
-        headers.put("Transfer-Encoding", "chunked");
     }
 
 
@@ -54,12 +48,19 @@ public class HttpResponse {
     }
 
 
+    public void enableChunked() {
+        this.chunked = true;
+        headers.put("Transfer-Encoding", "chunked");
+    }
+
+
     public void send() throws IOException {
         this.sendHeader();
-        if (chunked)
+        if (chunked) {
             sendChunkedFin(body);
-        else
+        } else {
             this.sendBody(body);
+        }
     }
 
 
@@ -72,7 +73,7 @@ public class HttpResponse {
         headers.put("Accept-Ranges", "bytes");
         headers.put("Connection", "keep-alive");
         headers.put("Keep-Alive", "timeout=" + HttpServer.TIMEOUT);
-        if (chunked){
+        if (chunked) {
             headers.remove("Content-Length");
         }
 
@@ -83,7 +84,7 @@ public class HttpResponse {
             sb.append(headerName).append(": ").append(headers.get(headerName)).append("\r\n");
         }
 
-        for (Cookie cookie:cookies){
+        for (Cookie cookie : cookies) {
             sb.append("Set-Cookie: ").append(cookie).append("\r\n");
         }
 
@@ -94,12 +95,12 @@ public class HttpResponse {
     }
 
 
-    public void sendBody(byte[] b) throws IOException {
+    public void sendBody(final byte[] b) throws IOException {
         sendBody(b, 0, b.length);
     }
 
 
-    public void sendBody(byte[] b, int offset, int len) throws IOException {
+    public void sendBody(final byte[] b, int offset, int len) throws IOException {
         if (out == null) {
             throw new IOException("socket output stream closed");
         }
@@ -109,29 +110,47 @@ public class HttpResponse {
     }
 
 
-    public void sendChunked(byte[] b, int offset, int len) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    public void sendChunked(final byte[] b, int offset, int len) throws IOException {
+        if (out == null) {
+            throw new IOException("socket output stream closed");
+        }
 
-        baos.write(Integer.toHexString(len - offset).getBytes());
-        baos.write("\r\n".getBytes());
-        baos.write(b, offset, len);
-        baos.write("\r\n".getBytes());
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            baos.write(Integer.toHexString(len).getBytes());
+            baos.write("\r\n".getBytes());
+            baos.write(b, offset, len);
+            baos.write("\r\n".getBytes());
 
-        out.write(baos.toByteArray());
+            out.write(baos.toByteArray());
+        }
+
+        out.flush();
+    }
+
+
+    public void sendChunkedTrailer() throws IOException {
+        if (out == null) {
+            throw new IOException("socket output stream closed");
+        }
+
+        out.write("0\r\n\r\n".getBytes());
         out.flush();
     }
 
 
     // to sending html
-    public void sendChunkedFin(byte[] b) throws IOException {
-        sendChunked(b, 0, b.length);
+    public void sendChunkedFin(final byte[] b) throws IOException {
+        int remain = b.length;
+        int offset = 0;
+
+        while (remain > HttpServer.BUFFER_SIZE) {
+            sendChunked(b, offset, HttpServer.BUFFER_SIZE);
+            offset += HttpServer.BUFFER_SIZE;
+            remain -= HttpServer.BUFFER_SIZE;
+        }
+
+        sendChunked(b, offset, remain);
         sendChunkedTrailer();
-    }
-
-
-    public void sendChunkedTrailer() throws IOException {
-        out.write("0\r\n\r\n".getBytes());
-        out.flush();
     }
 
 
@@ -152,7 +171,7 @@ public class HttpResponse {
             sb.append(headerName).append(": ").append(headers.get(headerName)).append("\r\n");
         }
 
-        for (Cookie cookie:cookies){
+        for (Cookie cookie : cookies) {
             sb.append("Set-Cookie: ").append(cookie).append("\r\n");
         }
 

@@ -36,19 +36,20 @@ public class SingleFile {
 
 
     private void parse() throws IOException {
-        byte[] parameterPair = HttpRequestParser.parse(in);
-        String s = new String(parameterPair, StandardCharsets.UTF_8);
+        byte[] parameterPairs = HttpRequestParser.parse(in);
+        String s = new String(parameterPairs, StandardCharsets.UTF_8);
 
+        this.fileLen = contentLen - parameterPairs.length - 12 - boundary.length();
         String split = s.split("\r\n")[1];
-        this.filename = split.substring(split.indexOf("filename=\"") + 10, split.lastIndexOf("\""));
-        this.fileLen = contentLen - parameterPair.length - 12 - boundary.length();
+
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+        this.filename = dateFormat.format(date) + "_" + split.substring(split.indexOf("filename=\"") + 10, split.lastIndexOf("\""));
     }
 
 
-    public File save(String dir) throws IOException {
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = new Date();
-        File file = new File(dir, dateFormat.format(date) + "_" + this.filename);
+    public boolean save(String dir) throws IOException {
+        File file = new File(dir, filename);
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
 
         long read = 0;
@@ -70,9 +71,10 @@ public class SingleFile {
         bos.close();
         if (file.length() != fileLen) {
             file.delete();
+            return false;
         }
 
-        return file;
+        return true;
     }
 
 

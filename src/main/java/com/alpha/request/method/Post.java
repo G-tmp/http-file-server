@@ -15,7 +15,7 @@ public class Post implements Method {
     private HttpResponse response;
 
 
-    public Post(HttpRequest request, HttpResponse response){
+    public Post(HttpRequest request, HttpResponse response) {
         this.request = request;
         this.response = response;
     }
@@ -24,13 +24,18 @@ public class Post implements Method {
     public void execute() throws IOException {
         SingleFile singleFile = request.parsePost();
 
-        File path = singleFile.save(new File(HttpServer.HOME, request.getPath()).getPath());
+        boolean success = singleFile.save(new File(HttpServer.HOME, request.getPath()).getPath());
 
-        String body = "<h1>" + path.getName() + "</h1>";
+        String body = null;
+        if (success) {
+            body = "<h1>" + singleFile.getFilename() + "</h1>";
+        }
+
         response.setStatusCode(Status._200);
         response.enableChunked();
         response.setContentType(ContentType.HTML);
         response.sendHeader();
+        assert body != null;
         response.sendChunkedFin(body.getBytes());
     }
 }

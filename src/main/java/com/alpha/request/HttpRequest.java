@@ -20,7 +20,7 @@ public class HttpRequest {
     private InputStream in;
 
 
-    public HttpRequest (InputStream in) {
+    public HttpRequest(InputStream in) {
         this.headers = new HashMap<>();
         this.queryParameters = new HashMap<>();
         this.cookies = new ArrayList<>();
@@ -93,8 +93,7 @@ public class HttpRequest {
             int separator = parameter.indexOf('=');
             if (separator > -1) {
                 queryParameters.put(parameter.substring(0, separator),
-                        parameter.substring(separator + 1)
-                );
+                        parameter.substring(separator + 1));
             } else {
                 queryParameters.put(parameter, "");
             }

@@ -119,13 +119,13 @@ public class Get implements Method {
                     if (showHidden != null) {
                         if (showHidden.equals("true")) {
                             Cookie cookie = new Cookie("showHidden", "true");
-                            cookie.setMaxAge(60 * 60);
+                            cookie.setMaxAge(60 * 60 * 2);
                             cookie.setPath("/");
                             response.addCookie(cookie);
                             response.redirect(request.getPath());
                         } else {
                             Cookie cookie = new Cookie("showHidden", "false");
-                            cookie.setMaxAge(60 * 60);
+                            cookie.setMaxAge(60 * 60 * 2);
                             cookie.setPath("/");
                             response.addCookie(cookie);
                             response.redirect(request.getPath());
@@ -159,22 +159,21 @@ public class Get implements Method {
                     // check parameter download
                     String download = request.getParameter("download");
                     if (download != null) {
-                        response.addHeader("Content-Disposition", "attachment;");
+                        response.addHeader("Content-Disposition", "attachment");
                     }
 
                     response.setStatusCode(Status._200);
-                    response.enableChunked();
                     response.guessContentType(request.getPath());
+                    response.setContentLength(localFile.length());
                     response.sendHeader();
 
                     byte[] buffer = new byte[HttpServer.BUFFER_SIZE];
-                    int count = 0;
+                    int n = 0;
                     BufferedInputStream bis = new BufferedInputStream(new FileInputStream(localFile));
 
-                    while ((count = bis.read(buffer)) != -1) {
-                        response.sendChunked(buffer, 0, count);
+                    while ((n = bis.read(buffer)) != -1) {
+                        response.sendBody(buffer, 0, n);
                     }
-                    response.sendChunkedTrailer();
 
                     bis.close();
                 }

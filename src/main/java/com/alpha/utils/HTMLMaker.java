@@ -20,7 +20,7 @@ public class HTMLMaker {
 
 
         StringBuffer html = new StringBuffer();
-        html.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">");
+        html.append("<!DOCTYPE html>");
         html.append("<html>\n<head>\n");
         html.append("<meta name=\"Content-Type\" content=\"text/html; charset=utf-8\">\n");
         html.append("<title>").append(path).append("</title>\n");
