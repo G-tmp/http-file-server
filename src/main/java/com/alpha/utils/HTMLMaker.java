@@ -48,24 +48,24 @@ public class HTMLMaker {
         html.append("<ul>\n");
 
         File[] files = FilesFilter.showHidden(dir, showHidden);
-        FilesFilter.sortByName(files);
+        FilesFilter.sortByFileName(files);
         for (File subfile : files) {
             String displayName = subfile.getName();
             String link = URLEncoder.encode(subfile.getName(), "UTF-8");
             Path toPath = subfile.toPath();
+            String element = null;
 
             if (Files.isDirectory(toPath)) {
                 displayName += "/";
                 link += "/";
-                String element = String.format("<a href=\"%s\"><strong>%s</strong></a>", link, displayName);
+                element = String.format("<a href=\"%s\"><strong>%s</strong></a>", link, displayName);
                 html.append("<li style=>").append(element).append("</li>\n");
             } else if (Files.isSymbolicLink(toPath)){
                 // symbol link
-                displayName = displayName + "@";
-                String element = String.format("<a href=\"%s\">%s</a>", link, displayName);
+                element = String.format("<a href=\"%s\">%s</a>@", link, displayName);
                 html.append("<li>").append(element).append("</li>\n");
             } else if (Files.isRegularFile(toPath)) {
-                String element = String.format("<a href=\"%s\">%s</a>", link, displayName);
+                element = String.format("<a href=\"%s\">%s</a>", link, displayName);
                 String download = String.format("<a href=\"%s\">%s</a>", link + "?download", "DL");
                 html.append("<li>").append(element).append("&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;&nbsp;").append(download).append("</li>\n");
             }

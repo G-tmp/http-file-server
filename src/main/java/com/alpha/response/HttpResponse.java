@@ -40,9 +40,9 @@ public class HttpResponse {
             this.headers.put("Content-Type", type.toString());
             return type;
         } catch (IllegalArgumentException e) {
-            // Http response not add "Content-Type" header
-            // Browser will automatic check type
-            // So do nothing
+            // If can not detect file type
+            // Leave it to browser
+            // Response header do not contains "Content-Type"
             return null;
         }
     }
