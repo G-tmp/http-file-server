@@ -2,11 +2,10 @@ package com.alpha.server;
 
 import com.alpha.request.HttpRequest;
 import com.alpha.request.method.Get;
-import com.alpha.request.method.Method;
+import com.alpha.request.method.HttpMethod;
 import com.alpha.request.method.Post;
 import com.alpha.response.HttpResponse;
 import com.alpha.response.Status;
-
 
 import java.io.*;
 import java.net.Socket;
@@ -14,7 +13,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 
-public class SocketThread implements Runnable {
+public class SocketThread implements Runnable, Constants {
     private Socket socket;
     private OutputStream out;
     private InputStream in;
@@ -33,7 +32,7 @@ public class SocketThread implements Runnable {
         boolean done = false;
 
         try {
-            socket.setSoTimeout(HttpServer.TIMEOUT * 1000);
+            socket.setSoTimeout(TIMEOUT * 1000);
 
             while (!done) {
                 HttpRequest request = new HttpRequest(in);
@@ -46,7 +45,7 @@ public class SocketThread implements Runnable {
                     break;
                 }
 
-                Method method = null;
+                HttpMethod method = null;
                 if ("GET".equals(request.getMethod())) {
                    method = new Get(request,response);
                 } else if ("POST".equals(request.getMethod())) {

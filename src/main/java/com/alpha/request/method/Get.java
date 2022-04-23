@@ -5,13 +5,13 @@ import com.alpha.request.HttpRequest;
 import com.alpha.response.ContentType;
 import com.alpha.response.HttpResponse;
 import com.alpha.response.Status;
-import com.alpha.server.HttpServer;
+import com.alpha.server.Constants;
 import com.alpha.utils.HTMLMaker;
 
 import java.io.*;
 
 
-public class Get implements Method {
+public class Get implements HttpMethod , Constants {
     private HttpRequest request;
     private HttpResponse response;
 
@@ -24,7 +24,7 @@ public class Get implements Method {
 
     @Override
     public void execute() throws IOException {
-        Status statusCode = Status.getStatusCode(request);
+        Status statusCode = getStatusCode(request);
 
         switch (statusCode) {
             case _404:
@@ -45,14 +45,14 @@ public class Get implements Method {
             case _206:
                 // for seeking audio and video
                 String range = request.getHeader("Range");
-                File file = new File(HttpServer.HOME, request.getPath());
+                File file = new File(HOME, request.getPath());
                 long fsize = file.length();
                 long len = 0;
 
                 if (range != null && range.contains("bytes")) {
                     long start;
                     long end;
-                    long sendSize = 1000 * 1000 * 5;
+                    long sendSize = 10 * Mb;
 
                     try {
                         start = Long.parseLong(range.substring(range.indexOf("=") + 1, range.indexOf("-")));
@@ -91,7 +91,7 @@ public class Get implements Method {
                     response.setContentLength(len);
                     response.sendHeader();
 
-                    byte[] b = new byte[HttpServer.BUFFER_SIZE];
+                    byte[] b = new byte[BUFFER_SIZE];
                     int c = 0;
                     long read = 0;
                     BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
@@ -110,7 +110,7 @@ public class Get implements Method {
                 }
                 break;
             case _200:
-                File localFile = new File(HttpServer.HOME, request.getPath());
+                File localFile = new File(HOME, request.getPath());
                 // html
                 if (localFile.isDirectory()) {
 
@@ -167,7 +167,7 @@ public class Get implements Method {
                     response.setContentLength(localFile.length());
                     response.sendHeader();
 
-                    byte[] buffer = new byte[HttpServer.BUFFER_SIZE];
+                    byte[] buffer = new byte[BUFFER_SIZE];
                     int n = 0;
                     BufferedInputStream bis = new BufferedInputStream(new FileInputStream(localFile));
 
@@ -180,6 +180,38 @@ public class Get implements Method {
                 break;
             default:
                 throw new IOException("unhandled status code");
+        }
+    }
+
+
+    private Status getStatusCode(HttpRequest request) {
+        String path = request.getPath();
+
+        File file = new File(HOME, path);
+        //    System.out.println(file);
+
+        String range = request.getHeader("Range");
+        if (range != null && range.contains("bytes")) {
+            return Status._206;
+        }
+
+        if (!file.exists()) {
+            return Status._404;
+        }
+
+        if (!file.canRead()) {
+            return Status._403;
+        }
+
+        if (file.isDirectory()) {
+            if (!path.endsWith("/")) {
+                return Status._307;
+            } else {
+                return Status._200;
+            }
+        } else {
+            // is file
+            return Status._200;
         }
     }
 

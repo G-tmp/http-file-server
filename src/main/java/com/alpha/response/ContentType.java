@@ -27,11 +27,8 @@ public enum ContentType {
     MD("md"),
     PDF("pdf");
 
-    private final String extension;
-
 
     ContentType(String extension) {
-        this.extension = extension;
     }
 
 
@@ -43,17 +40,16 @@ public enum ContentType {
                 return "text/html; charset=utf-8";
             case CSS:
                 return "text/css";
-            case ICO:
-                return "image/gif";
             case JPG:
             case JPEG:
                 return "image/jpeg";
             case PNG:
                 return "image/png";
             case GIF:
+            case ICO:
                 return "image/gif";
             case TXT:
-                return "text/plain; charset=UTF-8";
+                return "text/plain; charset=utf-8";
             case XML:
                 return "text/xml";
             case FLAC:
@@ -67,7 +63,7 @@ public enum ContentType {
             case WEBP:
                 return "image/webp";
             case MD:
-                return "text/markdown; charset=UTF-8";
+                return "text/markdown; charset=utf-8";
             case PDF:
                 return "application/pdf";
             default:

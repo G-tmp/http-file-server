@@ -1,9 +1,5 @@
 package com.alpha.response;
 
-import com.alpha.request.HttpRequest;
-import com.alpha.server.HttpServer;
-
-import java.io.File;
 
 public enum  Status {
     _100("100 Continue"),
@@ -59,35 +55,4 @@ public enum  Status {
         return status;
     }
 
-
-    public static Status getStatusCode(HttpRequest request) {
-        String path = request.getPath();
-
-        File file = new File(HttpServer.HOME, path);
-    //    System.out.println(file);
-
-        String range = request.getHeader("Range");
-        if (range != null && range.contains("bytes")) {
-            return Status._206;
-        }
-
-        if (!file.exists()) {
-            return Status._404;
-        }
-
-        if (!file.canRead()) {
-            return Status._403;
-        }
-
-        if (file.isDirectory()) {
-            if (!path.endsWith("/")) {
-                return Status._307;
-            } else {
-                return Status._200;
-            }
-        } else {
-            // is file
-            return Status._200;
-        }
-    }
 }

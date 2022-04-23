@@ -1,7 +1,7 @@
 package com.alpha.response;
 
 import com.alpha.request.Cookie;
-import com.alpha.server.HttpServer;
+import com.alpha.server.Constants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class HttpResponse {
+public class HttpResponse implements Constants {
     private String statusMessage;
     private Map<String, String> headers;
     private byte[] body;
@@ -69,16 +69,16 @@ public class HttpResponse {
             throw new IOException("socket output stream closed");
         }
 
-        headers.put("Server", HttpServer.SERVER);
+        headers.put("Server", SERVER_NAME);
         headers.put("Accept-Ranges", "bytes");
         headers.put("Connection", "keep-alive");
-        headers.put("Keep-Alive", "timeout=" + HttpServer.TIMEOUT);
+        headers.put("Keep-Alive", "timeout=" + TIMEOUT);
         if (chunked) {
             headers.remove("Content-Length");
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append(HttpServer.PROTOCOL_VERSION).append(" ").append(statusMessage).append("\r\n");
+        sb.append(PROTOCOL_VERSION).append(" ").append(statusMessage).append("\r\n");
 
         for (String headerName : headers.keySet()) {
             sb.append(headerName).append(": ").append(headers.get(headerName)).append("\r\n");
@@ -143,10 +143,10 @@ public class HttpResponse {
         int remain = b.length;
         int offset = 0;
 
-        while (remain > HttpServer.BUFFER_SIZE) {
-            sendChunked(b, offset, HttpServer.BUFFER_SIZE);
-            offset += HttpServer.BUFFER_SIZE;
-            remain -= HttpServer.BUFFER_SIZE;
+        while (remain > BUFFER_SIZE) {
+            sendChunked(b, offset, BUFFER_SIZE);
+            offset += BUFFER_SIZE;
+            remain -= BUFFER_SIZE;
         }
 
         sendChunked(b, offset, remain);
@@ -159,13 +159,13 @@ public class HttpResponse {
             throw new IOException("socket output stream closed");
         }
 
-        headers.put("Server", HttpServer.SERVER);
+        headers.put("Server", SERVER_NAME);
         headers.put("Accept-Ranges", "bytes");
         headers.put("Location", path);
         headers.put("Connection", "close");
 
         StringBuilder sb = new StringBuilder();
-        sb.append(HttpServer.PROTOCOL_VERSION).append(" ").append(Status._307.toString()).append("\r\n");
+        sb.append(PROTOCOL_VERSION).append(" ").append(Status._307.toString()).append("\r\n");
 
         for (String headerName : headers.keySet()) {
             sb.append(headerName).append(": ").append(headers.get(headerName)).append("\r\n");

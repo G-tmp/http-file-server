@@ -1,6 +1,6 @@
 package com.alpha.utils;
 
-import com.alpha.server.HttpServer;
+import com.alpha.server.Constants;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -8,13 +8,13 @@ import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class HTMLMaker {
+public class HTMLMaker implements Constants {
 
     private  HTMLMaker(){}
 
 
     public static String makeIndex(String path, boolean showHidden) throws UnsupportedEncodingException {
-        File dir = new File(HttpServer.HOME, path);
+        File dir = new File(HOME, path);
         if (!dir.isDirectory())
             return null;
 
@@ -42,7 +42,7 @@ public class HTMLMaker {
         if ("/".equals(path)) {
             html.append("/");
         } else {
-            String parentPath = dir.getParent().replace(HttpServer.HOME, "") + "/";
+            String parentPath = dir.getParent().replace(HOME, "") + "/";
             html.append("<a href=\"").append(parentPath).append("\">").append("Parent Directory").append("</a>");
         }
         html.append("<ul>\n");

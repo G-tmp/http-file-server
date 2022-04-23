@@ -7,15 +7,9 @@ import java.util.concurrent.Executors;
 
 
 public class HttpServer {
-    public final static String PROTOCOL_VERSION = "HTTP/1.1";
-    public final static String SERVER = "XD";
-    public final static String HOME = System.getProperty("user.home");
-    public final static int TIMEOUT = 10;
-    public final static int BUFFER_SIZE = 8 * 1024;
     private final static int DEFAULT_PORT = 8888;
-
     private int port;
-    private ExecutorService pool = Executors.newFixedThreadPool(8);
+    private static final ExecutorService pool = Executors.newFixedThreadPool(8);
 //    private Map<String, Map<String, Handler>> handlers = new HashMap<String, Map<String, Handler>>();
 
 

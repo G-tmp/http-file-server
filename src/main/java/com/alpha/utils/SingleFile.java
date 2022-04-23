@@ -1,23 +1,22 @@
 package com.alpha.utils;
 
-import com.alpha.server.HttpServer;
+import com.alpha.server.Constants;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
 
 /**
  * Only support upload one file
  */
-public class SingleFile {
+public class SingleFile implements Constants {
     private String boundary;
     private InputStream in;
     private long contentLen;
 
     private String filename;
     private long fileLen;
+    private boolean isOverwrite;
 
 
     public SingleFile(InputStream in, Map<String, String> headers) throws IOException {
@@ -42,19 +41,21 @@ public class SingleFile {
         this.fileLen = contentLen - parameterPairs.length - 12 - boundary.length();
         String split = s.split("\r\n")[1];
 
-        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = new Date();
-        this.filename = dateFormat.format(date) + "_" + split.substring(split.indexOf("filename=\"") + 10, split.lastIndexOf("\""));
+        this.filename = split.substring(split.indexOf("filename=\"") + 10, split.lastIndexOf("\""));
+//        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//        Date date = new Date();
+//        this.filename = dateFormat.format(date) + "_" + split.substring(split.indexOf("filename=\"") + 10, split.lastIndexOf("\""));
     }
 
 
     public boolean save(String dir) throws IOException {
         File file = new File(dir, filename);
+        isOverwrite = file.exists();
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
 
         long read = 0;
         int c;
-        byte[] b = new byte[HttpServer.BUFFER_SIZE];
+        byte[] b = new byte[BUFFER_SIZE];
         while (read < fileLen) {
             c = in.read(b);
             if (c == -1)
@@ -86,4 +87,10 @@ public class SingleFile {
     public long getFileLen() {
         return fileLen;
     }
+
+
+    public boolean isOverwrite() {
+        return isOverwrite;
+    }
+
 }
