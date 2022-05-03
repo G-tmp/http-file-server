@@ -12,12 +12,14 @@ import java.util.List;
 import java.util.Map;
 
 public class HttpResponse implements Constants {
+    private String httpVersion = "HTTP/1.1";
+    private String serverName = "XD";
     private String statusMessage;
     private Map<String, String> headers;
     private byte[] body;
     private List<Cookie> cookies;
-    private OutputStream out;
     private boolean chunked = false;
+    private OutputStream out;
 
 
     public HttpResponse(OutputStream out) {
@@ -69,7 +71,7 @@ public class HttpResponse implements Constants {
             throw new IOException("socket output stream closed");
         }
 
-        headers.put("Server", SERVER_NAME);
+        headers.put("Server", serverName);
         headers.put("Accept-Ranges", "bytes");
         headers.put("Connection", "keep-alive");
         headers.put("Keep-Alive", "timeout=" + TIMEOUT);
@@ -78,7 +80,7 @@ public class HttpResponse implements Constants {
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append(PROTOCOL_VERSION).append(" ").append(statusMessage).append("\r\n");
+        sb.append(httpVersion).append(" ").append(statusMessage).append("\r\n");
 
         for (String headerName : headers.keySet()) {
             sb.append(headerName).append(": ").append(headers.get(headerName)).append("\r\n");
@@ -159,13 +161,13 @@ public class HttpResponse implements Constants {
             throw new IOException("socket output stream closed");
         }
 
-        headers.put("Server", SERVER_NAME);
+        headers.put("Server", serverName);
         headers.put("Accept-Ranges", "bytes");
         headers.put("Location", path);
         headers.put("Connection", "close");
 
         StringBuilder sb = new StringBuilder();
-        sb.append(PROTOCOL_VERSION).append(" ").append(Status._307.toString()).append("\r\n");
+        sb.append(httpVersion).append(" ").append(Status._307.toString()).append("\r\n");
 
         for (String headerName : headers.keySet()) {
             sb.append(headerName).append(": ").append(headers.get(headerName)).append("\r\n");

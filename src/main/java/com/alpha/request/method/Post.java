@@ -29,9 +29,9 @@ public class Post implements HttpMethod , Constants {
         String body = null;
         if (success) {
             if (singleFile.isOverwrite())
-                body = "<h1>" + "Overwrite " + singleFile.getFilename() + "</h1>";
+                body = "<h1 style=\"color:orange\">" + singleFile.getFilename() + "</h1>";
             else
-                body = "<h1>" + "Create " + singleFile.getFilename() + "</h1>";
+                body = "<h1 style=\"color:green\">" + singleFile.getFilename() + "</h1>";
         }else {
             body = "<h1>" + "Failed" + "</h1>";
         }

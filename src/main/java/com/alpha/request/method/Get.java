@@ -94,19 +94,20 @@ public class Get implements HttpMethod , Constants {
                     byte[] b = new byte[BUFFER_SIZE];
                     int c = 0;
                     long read = 0;
-                    BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-                    long a = bis.skip(start);
 
-                    while (read < len) {
-                        c = bis.read(b, 0, read + b.length > len ? (int) (len - read) : b.length);
-                        if (c == -1)
-                            break;
+                    try(BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))){
+                        long a = bis.skip(start);
 
-                        read += c;
-                        response.sendBody(b, 0, c);
+                        while (read < len) {
+                            c = bis.read(b, 0, read + b.length > len ? (int) (len - read) : b.length);
+                            if (c == -1)
+                                break;
+
+                            read += c;
+                            response.sendBody(b, 0, c);
+                        }
                     }
 
-                    bis.close();
                 }
                 break;
             case _200:
@@ -188,7 +189,6 @@ public class Get implements HttpMethod , Constants {
         String path = request.getPath();
 
         File file = new File(HOME, path);
-        //    System.out.println(file);
 
         String range = request.getHeader("Range");
         if (range != null && range.contains("bytes")) {
