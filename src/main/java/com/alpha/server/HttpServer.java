@@ -8,8 +8,9 @@ import java.util.concurrent.Executors;
 
 public class HttpServer {
     private final static int DEFAULT_PORT = 8888;
-    private int port;
-    private static final ExecutorService pool = Executors.newFixedThreadPool(8);
+    private final static int CORES = Runtime.getRuntime().availableProcessors();
+    private final ExecutorService pool = Executors.newFixedThreadPool(CORES * 2);
+    private final int port;
 //    private Map<String, Map<String, Handler>> handlers = new HashMap<String, Map<String, Handler>>();
 
 
@@ -35,7 +36,7 @@ public class HttpServer {
     }
 
 
-    public static int getValidPort(String args[]) throws NumberFormatException {
+    public static int getValidPort(String []args) throws NumberFormatException {
         if (args.length > 0) {
             int port = Integer.parseInt(args[0]);
             if (port > 0 && port < 65535) {

@@ -58,8 +58,8 @@ public class SocketThread implements Runnable, Constants {
 
                 if ("close".equals(request.getHeader("Connection"))) {
                     done = true;
-                    break;
                 }
+
             }
 
         } catch (SocketTimeoutException e) {

@@ -40,7 +40,6 @@ public class Post implements HttpMethod , Constants {
         response.enableChunked();
         response.setContentType(ContentType.HTML);
         response.sendHeader();
-        assert body != null;
         response.sendChunkedFin(body.getBytes());
     }
 }

@@ -32,7 +32,6 @@ public class HttpRequest {
         byte[] header = HttpRequestParser.parse(in);
 
         String requestHeaders = new String(header, StandardCharsets.UTF_8);
-        //System.out.println(requestHeaders);
         StringTokenizer reqTok = new StringTokenizer(requestHeaders, "\r\n");
 
         // parse initial line
@@ -122,7 +121,7 @@ public class HttpRequest {
     }
 
 
-    // TODO support mutli-value headers
+    // TODO support multi-value headers
     public String getHeader(String headerName) {
         return headers.get(headerName);
     }

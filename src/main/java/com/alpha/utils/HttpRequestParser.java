@@ -6,19 +6,6 @@ import java.io.*;
 /**
  * Http request header and body split by "\r\n\r\n"
  * While upload file, data and parameters also split by "\r\n\r\n" in post request body
- * <p>
- * <p>
- * <p>
- * POST / HTTP/1.1
- * Content-Type: multipart/form-data; boundary=----WebKitFormBoundarydGnETrh9DhBD8Hlf
- * Content-Length: 55555
- * <p>
- * ------WebKitFormBoundarydGnETrh9DhBD8Hlf
- * Content-Disposition: form-data; name="file"; filename="1234.png"
- * Content-Type: image/png
- * <p>
- * [data]
- * ------WebKitFormBoundarydGnETrh9DhBD8Hlf--
  */
 public class HttpRequestParser {
     private static final byte[] EOF = {'\r', '\n', '\r', '\n'};
