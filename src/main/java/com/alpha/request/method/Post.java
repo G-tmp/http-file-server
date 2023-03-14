@@ -1,16 +1,16 @@
 package com.alpha.request.method;
 
-import com.alpha.response.HttpResponse;
-import com.alpha.server.Constants;
-import com.alpha.utils.SingleFile;
 import com.alpha.request.HttpRequest;
 import com.alpha.response.ContentType;
+import com.alpha.response.HttpResponse;
 import com.alpha.response.Status;
+import com.alpha.server.Constants;
+import com.alpha.utils.SingleFile;
 
 import java.io.File;
 import java.io.IOException;
 
-public class Post implements HttpMethod , Constants {
+public class Post implements HttpMethod, Constants {
     private HttpRequest request;
     private HttpResponse response;
 
@@ -32,7 +32,7 @@ public class Post implements HttpMethod , Constants {
                 body = "<h1 style=\"color:orange\">" + singleFile.getFilename() + "</h1>";
             else
                 body = "<h1 style=\"color:green\">" + singleFile.getFilename() + "</h1>";
-        }else {
+        } else {
             body = "<h1>" + "Failed" + "</h1>";
         }
 

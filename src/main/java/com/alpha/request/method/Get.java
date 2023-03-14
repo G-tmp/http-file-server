@@ -11,7 +11,7 @@ import com.alpha.utils.HTMLMaker;
 import java.io.*;
 
 
-public class Get implements HttpMethod , Constants {
+public class Get implements HttpMethod, Constants {
     private HttpRequest request;
     private HttpResponse response;
 
@@ -95,7 +95,7 @@ public class Get implements HttpMethod , Constants {
                     int c = 0;
                     long read = 0;
 
-                    try(BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))){
+                    try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
                         long a = bis.skip(start);
 
                         while (read < len) {
@@ -205,7 +205,7 @@ public class Get implements HttpMethod , Constants {
 
         if (file.isDirectory()) {
             if (!path.endsWith("/")) {
-                return Status._307;
+                return Status._302;
             } else {
                 return Status._200;
             }

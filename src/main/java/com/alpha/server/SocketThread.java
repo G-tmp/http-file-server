@@ -7,7 +7,9 @@ import com.alpha.request.method.Post;
 import com.alpha.response.HttpResponse;
 import com.alpha.response.Status;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -47,10 +49,10 @@ public class SocketThread implements Runnable, Constants {
 
                 HttpMethod method = null;
                 if ("GET".equals(request.getMethod())) {
-                   method = new Get(request,response);
+                    method = new Get(request, response);
                 } else if ("POST".equals(request.getMethod())) {
-                    method = new Post(request,response);
-                }else {
+                    method = new Post(request, response);
+                } else {
                     throw new RuntimeException("Unsupported HTTP method");
                 }
 
@@ -63,7 +65,7 @@ public class SocketThread implements Runnable, Constants {
             }
 
         } catch (SocketTimeoutException e) {
-            System.out.printf("** [%d] timeout **\n",socket.getPort());
+            System.out.printf("** [%d] timeout **\n", socket.getPort());
 //            e.printStackTrace();
         } catch (SocketException e) {
             System.out.printf("** [%d] client closed connection **\n", socket.getPort());

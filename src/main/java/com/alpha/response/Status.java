@@ -1,7 +1,7 @@
 package com.alpha.response;
 
 
-public enum  Status {
+public enum Status {
     _100("100 Continue"),
     _101("101 Switching Protocols"),
     _200("200 OK"),

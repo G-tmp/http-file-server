@@ -5,12 +5,14 @@ import com.alpha.server.Constants;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class HTMLMaker implements Constants {
 
-    private  HTMLMaker(){}
+    private HTMLMaker() {
+    }
 
 
     public static String makeIndex(String path, boolean showHidden) throws UnsupportedEncodingException {
@@ -51,7 +53,7 @@ public class HTMLMaker implements Constants {
         FilesFilter.sortByFileName(files);
         for (File subfile : files) {
             String displayName = subfile.getName();
-            String link = URLEncoder.encode(subfile.getName(), "UTF-8");
+            String link = URLEncoder.encode(subfile.getName(), StandardCharsets.UTF_8).replace("+", "%20");
             Path toPath = subfile.toPath();
             String element = null;
 
@@ -60,7 +62,7 @@ public class HTMLMaker implements Constants {
                 link += "/";
                 element = String.format("<a href=\"%s\"><strong>%s</strong></a>", link, displayName);
                 html.append("<li style=>").append(element).append("</li>\n");
-            } else if (Files.isSymbolicLink(toPath)){
+            } else if (Files.isSymbolicLink(toPath)) {
                 // symbol link
                 element = String.format("<a href=\"%s\">%s</a>@", link, displayName);
                 html.append("<li>").append(element).append("</li>\n");

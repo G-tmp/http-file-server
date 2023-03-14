@@ -4,7 +4,7 @@ package com.alpha.response;
 /**
  * ContentType enum uses the file extension to loosely map the
  * available content type based on common media types:
- *
+ * <p>
  * http://en.wikipedia.org/wiki/Internet_media_type
  */
 public enum ContentType {

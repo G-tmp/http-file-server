@@ -1,7 +1,8 @@
 package com.alpha.server;
 
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -36,7 +37,7 @@ public class HttpServer {
     }
 
 
-    public static int getValidPort(String []args) throws NumberFormatException {
+    public static int getValidPort(String[] args) throws NumberFormatException {
         if (args.length > 0) {
             int port = Integer.parseInt(args[0]);
             if (port > 0 && port < 65535) {
@@ -48,7 +49,6 @@ public class HttpServer {
 
         return DEFAULT_PORT;
     }
-
 
 
 }

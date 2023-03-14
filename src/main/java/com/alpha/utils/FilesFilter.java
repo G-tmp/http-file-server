@@ -41,7 +41,7 @@ public class FilesFilter {
 
         if (showHidden) {
             files = dir.listFiles();
-        } else  {
+        } else {
             files = dir.listFiles((filter) -> {
                 return !filter.isHidden();
             });

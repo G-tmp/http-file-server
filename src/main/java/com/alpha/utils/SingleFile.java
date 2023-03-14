@@ -3,14 +3,12 @@ package com.alpha.utils;
 import com.alpha.server.Constants;
 
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- *
  * only support upload one file, but no size limit
- *
+ * <p>
  * ***** HTTP post request format below *****
  * POST / HTTP/1.1
  * Content-Type: multipart/form-data; boundary=----WebKitFormBoundarydGnETrh9DhBD8Hlf
@@ -77,7 +75,7 @@ public class SingleFile implements Constants {
 
             if (read + c > fileLen) {
                 bos.write(b, 0, (int) (fileLen - read));
-            }else {
+            } else {
                 bos.write(b, 0, c);
             }
 

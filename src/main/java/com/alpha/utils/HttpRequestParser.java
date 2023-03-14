@@ -1,7 +1,10 @@
 package com.alpha.utils;
 
-
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 /**
  * Http request header and body split by "\r\n\r\n"
@@ -14,8 +17,59 @@ public class HttpRequestParser {
     private HttpRequestParser() {
     }
 
+    public static class Range {
+        public Integer start;
+        public Integer end;
+
+        public Range(Integer i, Integer j) {
+            start = i;
+            end = j;
+        }
+
+        @Override
+        public String toString() {
+            return start + "-" + end;
+        }
+    }
+
     /**
-     * return bytes array before double CRLF
+     * input format: "bytes=200-1000, 2000-6576, 19000-"
+     * "bytes=0-499, -500"
+     */
+    public static ArrayList<Range> parseRange(String range) {
+        ArrayList<Range> list = new ArrayList<>();
+        String s = range.substring("bytes=".length());
+        StringTokenizer reqTok = new StringTokenizer(s, ", ");
+        while (reqTok.hasMoreTokens()) {
+            String sub = reqTok.nextToken();
+            Integer start, end;
+
+            if (sub.startsWith("-")) {
+                start = null;
+                end = Integer.valueOf(sub.replace("-", ""));
+                list.add(new Range(start, end));
+                continue;
+            }
+
+            if (sub.endsWith("-")) {
+                end = null;
+                start = Integer.valueOf(sub.replace("-", ""));
+                list.add(new Range(start, end));
+                continue;
+            }
+
+            start = Integer.parseInt(sub.split("-")[0]);
+            end = Integer.parseInt(sub.split("-")[1]);
+
+            list.add(new Range(start, end));
+        }
+
+        return list;
+    }
+
+    /**
+     * Stop at double CRLF
+     * return a bytes array
      */
     public static byte[] parse(InputStream in) throws IOException {
 
@@ -43,7 +97,7 @@ public class HttpRequestParser {
     }
 
 
-    // detect byte array weather reach EOF
+    // detect byte array weather reach double CRLF
     private static boolean reachEnd(byte[] bytes) {
         int len = bytes.length;
         if (bytes[len - 1] != '\r' && bytes[len - 1] != '\n')
