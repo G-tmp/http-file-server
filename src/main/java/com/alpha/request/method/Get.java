@@ -7,8 +7,10 @@ import com.alpha.response.HttpResponse;
 import com.alpha.response.Status;
 import com.alpha.server.Constants;
 import com.alpha.utils.HTMLMaker;
+import com.alpha.utils.HttpRequestParser;
 
 import java.io.*;
+import java.util.ArrayList;
 
 
 public class Get implements HttpMethod, Constants {
@@ -47,26 +49,18 @@ public class Get implements HttpMethod, Constants {
                 String range = request.getHeader("Range");
                 File file = new File(HOME, request.getPath());
                 long fsize = file.length();
-                long len = 0;
+                long sendSize = 10 * Mb;
 
+
+                // Only use first range here
                 if (range != null && range.contains("bytes")) {
-                    long start;
-                    long end;
-                    long sendSize = 10 * Mb;
+                    ArrayList<HttpRequestParser.Range> arrayList = HttpRequestParser.parseRange(range);
+                    HttpRequestParser.Range range1 = arrayList.remove(0);
 
-                    try {
-                        start = Long.parseLong(range.substring(range.indexOf("=") + 1, range.indexOf("-")));
-                    } catch (NumberFormatException e) {
-                        start = 0;
-                    }
+                    long start = range1.start;
+                    long end = range1.end;
 
-                    try {
-                        end = Long.parseLong(range.substring(range.indexOf("-") + 1));
-                    } catch (NumberFormatException e) {
-                        end = 0;
-                    }
-
-                    if (start < 0 || start > fsize || end < 0 || (end < start && end > 0)) {
+                    if (range1.start != -1 && range1.end != -1 && range1.start > range1.end) {
                         response.setContentLength(0);
                         response.setStatusCode(Status._416);
                         response.addHeader("Content-Range", String.format("bytes */%d", fsize));
@@ -74,7 +68,7 @@ public class Get implements HttpMethod, Constants {
                         break;
                     }
 
-                    if (end == 0) {
+                    if (range1.end == -1) {
                         if (fsize > start + sendSize) {
                             end = start + sendSize - 1;
                         } else {
@@ -84,7 +78,7 @@ public class Get implements HttpMethod, Constants {
                         end = fsize - 1;
                     }
 
-                    len = end - start + 1;
+                    long len = end - start + 1;
                     response.setStatusCode(Status._206);
                     response.addHeader("Content-Range", String.format("bytes %d-%d/%d", start, end, fsize));
                     response.guessContentType(request.getPath());
@@ -96,7 +90,7 @@ public class Get implements HttpMethod, Constants {
                     long read = 0;
 
                     try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
-                        long a = bis.skip(start);
+                        long skip = bis.skip(start);
 
                         while (read < len) {
                             c = bis.read(b, 0, read + b.length > len ? (int) (len - read) : b.length);

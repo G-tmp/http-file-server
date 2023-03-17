@@ -1,6 +1,5 @@
 # HTTP file server
 
-# Rio, i pushed a commit on my project, can it be seen as identity proof?
 
 
 A simple HTTP server supports display local files

@@ -18,17 +18,17 @@ public class HttpRequestParser {
     }
 
     public static class Range {
-        public Integer start;
-        public Integer end;
+        public int start;
+        public int end;
 
-        public Range(Integer i, Integer j) {
+        public Range(int i, int j) {
             start = i;
             end = j;
         }
 
         @Override
         public String toString() {
-            return start + "-" + end;
+            return start + " - " + end;
         }
     }
 
@@ -42,18 +42,18 @@ public class HttpRequestParser {
         StringTokenizer reqTok = new StringTokenizer(s, ", ");
         while (reqTok.hasMoreTokens()) {
             String sub = reqTok.nextToken();
-            Integer start, end;
+            int start, end;
 
             if (sub.startsWith("-")) {
-                start = null;
-                end = Integer.valueOf(sub.replace("-", ""));
+                start = -1;
+                end = Integer.parseInt(sub.replace("-", ""));
                 list.add(new Range(start, end));
                 continue;
             }
 
             if (sub.endsWith("-")) {
-                end = null;
-                start = Integer.valueOf(sub.replace("-", ""));
+                end = -1;
+                start = Integer.parseInt(sub.replace("-", ""));
                 list.add(new Range(start, end));
                 continue;
             }
