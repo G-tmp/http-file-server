@@ -8,7 +8,7 @@ import java.util.concurrent.Executors;
 
 
 public class HttpServer {
-    private final static int DEFAULT_PORT = 8888;
+    private final static int DEFAULT_PORT = 9999;
     private final static int CORES = Runtime.getRuntime().availableProcessors();
     private final ExecutorService pool = Executors.newFixedThreadPool(CORES * 2);
     private final int port;

@@ -157,17 +157,17 @@ public class HttpResponse implements Constants {
 
 
     public void redirect(String path) throws IOException {
-        if (out == null) {
-            throw new IOException("socket output stream closed");
-        }
+//        if (out == null) {
+//            throw new IOException("socket output stream closed");
+//        }
 
         headers.put("Server", serverName);
-        headers.put("Accept-Ranges", "bytes");
         headers.put("Location", path);
-        headers.put("Connection", "close");
+        headers.put("content-length", "0");
+//        headers.put("Connection", "close");
 
         StringBuilder sb = new StringBuilder();
-        sb.append(httpVersion).append(" ").append(Status._307.toString()).append("\r\n");
+        sb.append(httpVersion).append(" ").append(Status._302.toString()).append("\r\n");
 
         for (String headerName : headers.keySet()) {
             sb.append(headerName).append(": ").append(headers.get(headerName)).append("\r\n");
@@ -176,10 +176,28 @@ public class HttpResponse implements Constants {
         for (Cookie cookie : cookies) {
             sb.append("Set-Cookie: ").append(cookie).append("\r\n");
         }
-
         sb.append("\r\n");
-        out.write(sb.toString().getBytes());
 
+        out.write(sb.toString().getBytes());
+        out.flush();
+    }
+
+
+    public void notFound() throws IOException {
+        StringBuilder sb = new StringBuilder();
+        sb.append(httpVersion).append(" ").append(Status._404.toString()).append("\r\n");
+
+        String body = "<center><h2>404 not found</h2></center>";
+        headers.put("Server", serverName);
+        headers.put("content-length", String.valueOf(body.getBytes().length));
+
+        for (String headerName : headers.keySet()) {
+            sb.append(headerName).append(": ").append(headers.get(headerName)).append("\r\n");
+        }
+        sb.append("\r\n");
+
+        out.write(sb.toString().getBytes());
+        out.write(body.getBytes());
         out.flush();
     }
 

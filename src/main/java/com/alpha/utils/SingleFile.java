@@ -28,7 +28,7 @@ public class SingleFile implements Constants {
 
     private String filename;
     private long fileLen;
-    private boolean isOverwrite;
+    private boolean isExist;
 
 
     public SingleFile(InputStream in, Map<String, String> headers) throws IOException {
@@ -62,7 +62,7 @@ public class SingleFile implements Constants {
 
     public boolean save(String dir) throws IOException {
         File file = new File(dir, filename);
-        isOverwrite = file.exists();
+        isExist = file.exists();
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
 
         long read = 0;
@@ -102,8 +102,8 @@ public class SingleFile implements Constants {
     }
 
 
-    public boolean isOverwrite() {
-        return isOverwrite;
+    public boolean isExist() {
+        return isExist;
     }
 
 }

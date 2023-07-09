@@ -37,7 +37,7 @@ public class HttpRequest {
 
         // parse initial line
         String initialLine = reqTok.nextToken();
-        System.out.println(initialLine);
+        System.out.println(URLDecoder.decode(initialLine, StandardCharsets.UTF_8));
         StringTokenizer initTok = new StringTokenizer(initialLine);
         String[] components = new String[3];
         for (int i = 0; i < components.length; i++) {

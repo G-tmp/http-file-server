@@ -30,9 +30,10 @@ public class Get implements HttpMethod, Constants {
 
         switch (statusCode) {
             case _404:
-                response.setStatusCode(Status._404);
-                response.setContentLength(0);
-                response.sendHeader();
+//                response.setStatusCode(Status._404);
+//                response.setContentLength(0);
+//                response.sendHeader();
+                response.notFound();
                 break;
             case _403:
                 response.setStatusCode(Status._403);
@@ -144,11 +145,13 @@ public class Get implements HttpMethod, Constants {
                     }
 
                     response.setStatusCode(Status._200);
-                    response.enableChunked();
+//                    response.enableChunked();
+                    response.setContentLength(html.getBytes().length);
                     response.setContentType(ContentType.HTML);
                     response.sendHeader();
 
-                    response.sendChunkedFin(html.getBytes());
+//                    response.sendChunkedFin(html.getBytes());
+                    response.sendBody(html.getBytes());
                 } else {   // file
 
                     // check parameter download
