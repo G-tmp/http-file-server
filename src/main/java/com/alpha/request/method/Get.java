@@ -50,7 +50,7 @@ public class Get implements HttpMethod, Constants {
                 String range = request.getHeader("Range");
                 File file = new File(HOME, request.getPath());
                 long fsize = file.length();
-                long sendSize = 10 * Mb;
+                long sendSize;
 
 
                 // Only use first range here
@@ -60,6 +60,7 @@ public class Get implements HttpMethod, Constants {
 
                     long start = range1.start;
                     long end = range1.end;
+                    sendSize = fsize - start;
 
                     if (range1.start != -1 && range1.end != -1 && range1.start > range1.end) {
                         response.setContentLength(0);
@@ -91,7 +92,7 @@ public class Get implements HttpMethod, Constants {
                     long read = 0;
 
                     try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
-                        long skip = bis.skip(start);
+                    	bis.skip(start);
 
                         while (read < len) {
                             c = bis.read(b, 0, read + b.length > len ? (int) (len - read) : b.length);
@@ -154,7 +155,7 @@ public class Get implements HttpMethod, Constants {
                     response.sendBody(html.getBytes());
                 } else {   // file
 
-                    // check parameter download
+                    // check parameter 'download'
                     String download = request.getParameter("download");
                     if (download != null) {
                         response.addHeader("Content-Disposition", "attachment");

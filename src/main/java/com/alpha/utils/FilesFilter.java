@@ -11,7 +11,7 @@ public class FilesFilter {
 
 
     // list directory first and ignore case sensitive
-    private final static Comparator DIR_FIRST_AND_UNSENSITIVE_COMP = new Comparator() {
+	private final static Comparator DIR_FIRST_AND_UNSENSITIVE_COMP = new Comparator() {
         public int compare(Object o1, Object o2) {
             File f1 = (File) o1;
             File f2 = (File) o2;
@@ -31,9 +31,10 @@ public class FilesFilter {
 
 
     // Sort files order by file name
-    public static void sortByFileName(File[] files) {
-        Arrays.sort(files, DIR_FIRST_AND_UNSENSITIVE_COMP);
+	public static void sortByFileName(File[] files) {
+    	Arrays.sort(files, DIR_FIRST_AND_UNSENSITIVE_COMP);
     }
+
 
 
     public static File[] showHidden(File dir, boolean showHidden) {

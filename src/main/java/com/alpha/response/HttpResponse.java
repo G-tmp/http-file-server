@@ -30,22 +30,19 @@ public class HttpResponse implements Constants {
 
 
     // TODO - determine file type by file signature
-    public ContentType guessContentType(String url) {
+    public void guessContentType(String url) {
         if (!url.contains(".")) {
             this.headers.put("Content-Type", ContentType.TXT.toString());
-            return ContentType.TXT;
         }
 
         String ext = url.substring(url.lastIndexOf(".") + 1);
         try {
             ContentType type = ContentType.valueOf(ext.toUpperCase());
             this.headers.put("Content-Type", type.toString());
-            return type;
         } catch (IllegalArgumentException e) {
             // If can not detect file type
             // Leave it to browser
             // Response header do not contains "Content-Type"
-            return null;
         }
     }
 
@@ -163,7 +160,6 @@ public class HttpResponse implements Constants {
 
         headers.put("Server", serverName);
         headers.put("Location", path);
-        headers.put("content-length", "0");
 //        headers.put("Connection", "close");
 
         StringBuilder sb = new StringBuilder();

@@ -30,7 +30,7 @@ public class SocketThread implements Runnable, Constants {
 
     @Override
     public void run() {
-        System.out.println("** Received connection from " + socket.getRemoteSocketAddress().toString());
+        System.out.println("++ Received connection from " + socket.getRemoteSocketAddress().toString());
         boolean done = false;
 
         try {
@@ -65,10 +65,10 @@ public class SocketThread implements Runnable, Constants {
             }
 
         } catch (SocketTimeoutException e) {
-            System.out.printf("** [%d] timeout **\n", socket.getPort());
+            System.out.printf("-- [%d] timeout **\n", socket.getPort());
 //            e.printStackTrace();
         } catch (SocketException e) {
-            System.out.printf("** [%d] client closed connection **\n", socket.getPort());
+            System.out.printf("-- [%d] client closed connection **\n", socket.getPort());
 //            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();

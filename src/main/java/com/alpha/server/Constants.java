@@ -3,7 +3,7 @@ package com.alpha.server;
 public interface Constants {
     final static String HOME = System.getProperty("user.home");
 
-    final static int TIMEOUT = 30;
+    final static int TIMEOUT = 10;
 
     final static int Kb = 1024;
 
