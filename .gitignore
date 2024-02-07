@@ -25,7 +25,6 @@ hs_err_pid*
 .idea/
 src/test/
 target/
-src/main/java/com/alpha/handler
 *.iml
 .settings
 .classpath
