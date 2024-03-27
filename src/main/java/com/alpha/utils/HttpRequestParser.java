@@ -122,7 +122,7 @@ public class HttpRequestParser {
 
         return true;
 
-        // the simpler detect way
+        // a simpler detect way
 //        return bytes.toString().contains("\r\n\r");
     }
 }

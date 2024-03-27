@@ -24,7 +24,7 @@ public class HttpServer {
         ServerSocket welcomeSocket = null;
         try {
             welcomeSocket = new ServerSocket(port);
-            System.out.println("Listening on port " + port);
+            System.out.println("Listening on " + "http://127.0.0.1:" + port);
             Socket connectionSocket = null;
 
             while ((connectionSocket = welcomeSocket.accept()) != null) {

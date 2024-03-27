@@ -6,6 +6,7 @@ import com.alpha.request.method.HttpMethod;
 import com.alpha.request.method.Post;
 import com.alpha.response.HttpResponse;
 import com.alpha.response.Status;
+import com.alpha.utils.HTMLMaker;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,9 +43,11 @@ public class SocketThread implements Runnable, Constants {
 
                 if (!request.parse()) {
                     response.setStatusCode(Status._500);
-                    response.setContentLength(0);
-                    response.sendHeader();
-                    break;
+                    String body = HTMLMaker._500();
+                    response.setContentLength(body.getBytes().length);
+                    response.setBody(body);
+                    response.send();
+                    return;
                 }
 
                 HttpMethod method = null;

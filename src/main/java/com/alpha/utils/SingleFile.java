@@ -64,26 +64,28 @@ public class SingleFile implements Constants {
     public boolean save(String dir) throws IOException {
         File file = new File(dir, filename);
         isExist = file.exists();
-        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
 
-        long read = 0;
-        int c;
-        byte[] b = new byte[BUFFER_SIZE];
-        while (read < fileLen) {
-            c = in.read(b);
-            if (c == -1)
-                break;
+        try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));){
 
-            if (read + c > fileLen) {
-                bos.write(b, 0, (int) (fileLen - read));
-            } else {
-                bos.write(b, 0, c);
+            long read = 0;
+            int c;
+            byte[] b = new byte[BUFFER_SIZE];
+            while (read < fileLen) {
+                c = in.read(b);
+                if (c == -1)
+                    break;
+
+                if (read + c > fileLen) {
+                    bos.write(b, 0, (int) (fileLen - read));
+                } else {
+                    bos.write(b, 0, c);
+                }
+
+                read += c;
             }
 
-            read += c;
         }
 
-        bos.close();
         if (file.length() != fileLen) {
             file.delete();
             return false;

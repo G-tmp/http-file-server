@@ -1,7 +1,7 @@
 package com.alpha.utils;
 
 /**
- *  Parse post request upload multiple files
+ *  Parse post request contain multiple files
  *  
  * POST / HTTP/1.1
  * Content-Type: multipart/form-data; boundary=----WebKitFormBoundarydGnETrh9DhBD8Hlf

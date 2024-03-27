@@ -20,7 +20,6 @@ public class HTMLMaker implements Constants {
         if (!dir.isDirectory())
             return null;
 
-
         StringBuffer html = new StringBuffer();
         html.append("<!DOCTYPE html>");
         html.append("<html>\n<head>\n");
@@ -76,6 +75,45 @@ public class HTMLMaker implements Constants {
 
         html.append("</ul>\n<hr>\n</body>\n</html>");
 
+        return String.valueOf(html);
+    }
+
+    public static String _404() {
+        StringBuffer html = new StringBuffer();
+        html.append("<!DOCTYPE html>\n");
+        html.append("<html>\n<head>\n");
+        html.append("<meta name=\"Content-Type\" content=\"text/html; charset=utf-8\">\n");
+        html.append("<title>").append("404").append("</title>\n").append("</head>\n");
+        html.append("<body>\n");
+        html.append("<center><h2>404 Not Found<h2><center> \n");
+        html.append("</body>\n");
+        html.append("</html>");
+        return String.valueOf(html);
+    }
+
+    public static String _403() {
+        StringBuffer html = new StringBuffer();
+        html.append("<!DOCTYPE html>\n");
+        html.append("<html>\n<head>\n");
+        html.append("<meta name=\"Content-Type\" content=\"text/html; charset=utf-8\">\n");
+        html.append("<title>").append("403").append("</title>\n").append("</head>\n");
+        html.append("<body>\n");
+        html.append("<center><h2>403 Forbidden<h2><center> \n");
+        html.append("</body>\n");
+        html.append("</html>");
+        return String.valueOf(html);
+    }
+
+    public static String _500() {
+        StringBuffer html = new StringBuffer();
+        html.append("<!DOCTYPE html>\n");
+        html.append("<html>\n<head>\n");
+        html.append("<meta name=\"Content-Type\" content=\"text/html; charset=utf-8\">\n");
+        html.append("<title>").append("500").append("</title>\n").append("</head>\n");
+        html.append("<body>\n");
+        html.append("<center><h2>500 Internal Server Error<h2><center> \n");
+        html.append("</body>\n");
+        html.append("</html>");
         return String.valueOf(html);
     }
 }

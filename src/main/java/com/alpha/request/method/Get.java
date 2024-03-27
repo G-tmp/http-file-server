@@ -30,23 +30,24 @@ public class Get implements HttpMethod, Constants {
 
         switch (statusCode) {
             case _404:
-//                response.setStatusCode(Status._404);
-//                response.setContentLength(0);
-//                response.sendHeader();
-                response.notFound();
+                response.setStatusCode(Status._404);
+                String body = HTMLMaker._404();
+                response.setContentLength(body.getBytes().length);
+                response.setBody(body);
+                response.send();
                 break;
             case _403:
                 response.setStatusCode(Status._403);
-                response.setContentLength(0);
-                response.sendHeader();
+                body = HTMLMaker._403();
+                response.setContentLength(body.getBytes().length);
+                response.setBody(body);
+                response.send();
                 break;
             case _301:
             case _302:
-            case _307:
                 response.redirect(request.getPath() + "/");
                 break;
             case _206:
-                // for seeking audio and video
                 String range = request.getHeader("Range");
                 File file = new File(HOME, request.getPath());
                 long fsize = file.length();

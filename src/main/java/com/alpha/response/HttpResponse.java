@@ -55,11 +55,7 @@ public class HttpResponse implements Constants {
 
     public void send() throws IOException {
         this.sendHeader();
-        if (chunked) {
-            sendChunkedFin(body);
-        } else {
-            this.sendBody(body);
-        }
+        this.sendBody(body);
     }
 
 
@@ -179,25 +175,6 @@ public class HttpResponse implements Constants {
     }
 
 
-    public void notFound() throws IOException {
-        StringBuilder sb = new StringBuilder();
-        sb.append(httpVersion).append(" ").append(Status._404.toString()).append("\r\n");
-
-        String body = "<center><h2>404 not found</h2></center>";
-        headers.put("Server", serverName);
-        headers.put("content-length", String.valueOf(body.getBytes().length));
-
-        for (String headerName : headers.keySet()) {
-            sb.append(headerName).append(": ").append(headers.get(headerName)).append("\r\n");
-        }
-        sb.append("\r\n");
-
-        out.write(sb.toString().getBytes());
-        out.write(body.getBytes());
-        out.flush();
-    }
-
-
     @Override
     public String toString() {
         return new String(body);
@@ -229,12 +206,12 @@ public class HttpResponse implements Constants {
     }
 
 
-    public void addBody(String body) {
-        addBody(body.getBytes());
+    public void setBody(String body) {
+        setBody(body.getBytes());
     }
 
 
-    public void addBody(byte[] body) {
+    public void setBody(byte[] body) {
         this.body = body;
     }
 }
